@@ -70,8 +70,7 @@ export default function SizeChartPage() {
       <div className="mb-12">
         <h1 className="font-display text-4xl font-semibold text-olive-dark sm:text-5xl">Size Chart</h1>
         <p className="mt-4 text-stone-600">
-            Not sure about your size? We've got you covered. Below are our detailed size charts for each category.
-          If you need help, reach out to us at <a href="mailto:sizing@donttellmama.in" className="text-olive underline underline-offset-2 hover:text-gold">sizing@donttellmama.in</a>.
+           Not sure about your size? We&apos;ve got you covered. Below are our detailed size charts for each category. <a href="mailto:sizing@donttellmama.in" className="text-olive underline underline-offset-2 hover:text-gold">sizing@donttellmama.in</a>.
         </p>
       </div>
 
@@ -119,7 +118,7 @@ export default function SizeChartPage() {
               />
             </div>
             <h3 className="font-display text-lg font-semibold text-olive-dark">Hip</h3>
-            <p className="mt-1 text-sm text-stone-600">Measure around the fullest part of your hips, about 8" below your waist.</p>
+            <p className="mt-1 text-sm text-stone-600">Measure around the fullest part of your hips, about 8&quot; below your waist.</p>
           </div>
         </div>
       </section>
@@ -178,7 +177,7 @@ export default function SizeChartPage() {
           </div>
           <h2 className="font-display text-3xl font-semibold text-ivory sm:text-4xl">Need a Custom Fit?</h2>
           <p className="mt-4 text-ivory/80">
-            We offer custom tailoring services for all our garments. Visit any product page and use the "Customize Your Fit" feature to share your measurements with us.
+            We offer custom tailoring services for all our garments. Visit any product page and use the &quot;Customize Your Fit&quot; feature to share your measurements with us.
           </p>
           <Link
             href="/shop/all"

@@ -6,7 +6,7 @@ import { MEDIA } from '@/lib/cloudinary'
 import { getProducts } from '@/lib/medusa'
 
 export const metadata: Metadata = {
-  title: "Don't Tell Mama — Quiet Luxury",
+  title: "Don&apos;t Tell Mama — Quiet Luxury",
   description:
     "Curated slow-fashion for the woman who knows exactly who she is. Timeless pieces, intentionally made in India.",
 }
@@ -45,10 +45,10 @@ export default async function HomePage() {
         {/* Hero content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-gold">
-            New Collection — Monsoon '25
+            New Collection — Monsoon &apos;25
           </p>
           <h1 className="font-display text-5xl font-semibold text-ivory drop-shadow-sm sm:text-6xl lg:text-8xl">
-            Don't Tell Mama
+            Don&apos;t Tell Mama
           </h1>
           <p className="mt-6 max-w-md text-base text-ivory/80 sm:text-lg">
             Quiet luxury for the woman who knows exactly who she is.
@@ -158,19 +158,19 @@ export default async function HomePage() {
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
-                <div className="mt-3 space-y-1">
-                  <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
-                    {product.title}
-                  </h3>
-                  <p className="text-sm font-semibold text-olive">
-                    {new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format((product.variants?.[0]?.prices?.[0]?.amount || 0) / 100)}
-                  </p>
-                </div>
+                 <div className="mt-3 space-y-1">
+                   <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
+                     {product.title}
+                   </h3>
+                   <p className="text-sm font-semibold text-olive">
+                     {new Intl.NumberFormat('en-IN', {
+                       style: 'currency',
+                       currency: 'INR',
+                       minimumFractionDigits: 0,
+                       maximumFractionDigits: 0,
+                    }).format((product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100)}
+                   </p>
+                 </div>
               </Link>
             )
           })}
@@ -199,13 +199,13 @@ export default async function HomePage() {
             </h2>
             <div className="mt-6 space-y-4 text-stone-600">
               <p>
-                Don't Tell Mama began in a Mumbai apartment in 2021 — a rejection of throwaway fashion and a love letter to the things worth keeping. We believe a wardrobe should feel like a collection of trusted companions, not a catalogue of regrets.
+                Don&apos;t Tell Mama began in a Mumbai apartment in 2021 — a rejection of throwaway fashion and a love letter to the things worth keeping. We believe a wardrobe should feel like a collection of trusted companions, not a catalogue of regrets.
               </p>
               <p>
                 We make fewer pieces than most brands. We take longer to design them. We work with craftspeople who care as much as we do. Every stitch, every seam, every fabric choice is intentional.
               </p>
               <p>
-                Our garments are designed to last decades and grow more beautiful with age. Because true luxury isn't about logos — it's about knowing what you love and sticking with it.
+                Our garments are designed to last decades and grow more beautiful with age. Because true luxury isn&apos;t about logos — it&apos;s about knowing what you love and sticking with it.
               </p>
             </div>
             <Link
@@ -219,7 +219,7 @@ export default async function HomePage() {
             <div className="aspect-[4/5] overflow-hidden rounded-lg">
               <Image
                 src={MEDIA.about.brand.fallback}
-                alt="Don't Tell Mama brand story"
+                alt="Don&apos;t Tell Mama brand story"
                 width={800}
                 height={1000}
                 className="h-full w-full object-cover"
