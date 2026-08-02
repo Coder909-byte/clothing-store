@@ -10,6 +10,7 @@ const FOOTER_LINKS = {
     { label: 'FAQ', href: '/faq' },
     { label: 'Contact', href: '/contact' },
     { label: 'Shipping & Returns', href: '/policies/shipping-and-returns' },
+    { label: 'Refund Policy', href: '/policies/refund-policy' },
   ],
   Company: [
     { label: 'About', href: '/about' },

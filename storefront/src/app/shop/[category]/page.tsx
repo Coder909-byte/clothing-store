@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { MEDIA } from '@/lib/cloudinary'
+import { getProducts } from '@/lib/medusa'
 import { formatPrice } from '@/lib/utils'
 
 interface Props {
@@ -38,15 +39,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-// Placeholder products used until Medusa API is connected
-const PLACEHOLDER_PRODUCTS = Array.from({ length: 9 }, (_, i) => ({
-  id: `placeholder-${i}`,
-  title: ['The Linen Tunic', 'Wide-Leg Trousers', 'Wrap Midi Dress', 'Oversized Blazer', 'Woven Raffia Tote', 'Silk Scarf 90cm', 'Pearl Drop Earrings', 'Ceramic Bud Vase', 'Beeswax Pillar Candle'][i % 9]!,
-  handle: ['linen-tunic', 'wide-leg-trousers', 'wrap-midi-dress', 'oversized-blazer', 'woven-raffia-tote', 'silk-scarf-90cm', 'pearl-drop-earrings', 'ceramic-bud-vase', 'beeswax-pillar-candle'][i % 9]!,
-  price: [4200, 3800, 5600, 6900, 2400, 1600, 2200, 1400, 890][i % 9]! * 100,
-  thumbnail: MEDIA.product(['linen-tunic', 'wide-leg-trousers', 'wrap-midi-dress', 'oversized-blazer', 'woven-raffia-tote', 'silk-scarf-90cm', 'pearl-drop-earrings', 'ceramic-bud-vase', 'beeswax-pillar-candle'][i % 9]!).thumbnail.fallback,
-}))
-
 const SORT_OPTIONS = [
   { value: 'created_at', label: 'Newest' },
   { value: 'price_asc', label: 'Price: Low to High' },
@@ -58,9 +50,12 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
   const { sort = 'created_at' } = await searchParams
   const meta = CATEGORY_META[category] ?? CATEGORY_META['all']!
 
-  // TODO: Replace with real Medusa data fetch:
-  // const { products } = await getProducts({ category_handle: [category], order: sort })
-  const products = PLACEHOLDER_PRODUCTS
+  // Fetch products from Medusa
+  const filters: Record<string, unknown> = {}
+  if (category !== 'all') {
+    filters.category_handle = [category]
+  }
+  const { products } = await getProducts({ ...filters, order: sort })
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -114,30 +109,36 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
 
       {/* Product grid */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-3">
-        {products.map((product) => (
-          <Link key={product.id} href={`/product/${product.handle}`} className="group">
-            <div className="aspect-[3/4] overflow-hidden rounded-md bg-ivory-warm">
-              <Image
-                src={product.thumbnail}
-                alt={product.title}
-                width={400}
-                height={533}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-            <div className="mt-3 space-y-1">
-              <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
-                {product.title}
-              </h3>
-              <p className="text-sm font-semibold text-olive">{formatPrice(product.price)}</p>
-            </div>
-          </Link>
-        ))}
+        {products.map((product) => {
+          const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+          return (
+            <Link key={product.id} href={`/product/${product.handle}`} className="group">
+              <div className="aspect-[3/4] overflow-hidden rounded-md bg-ivory-warm">
+                <Image
+                  src={thumbnail}
+                  alt={product.title}
+                  width={400}
+                  height={533}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </div>
+              <div className="mt-3 space-y-1">
+                <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
+                  {product.title}
+                </h3>
+                <p className="text-sm font-semibold text-olive">
+                  {formatPrice((product.variants?.[0] as { prices?: { amount?: number }[] })?.prices?.[0]?.amount || 0)}
+                </p>
+              </div>
+            </Link>
+          )
+        })}
       </div>
 
       {products.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-24 text-center">
           <p className="font-display text-2xl text-stone-400">No products found</p>
+          <p className="text-sm text-stone-500">Try adjusting your filters or browse all products.</p>
           <Link href="/shop/all" className="inline-flex items-center gap-2 text-sm text-olive hover:underline">
             View all products <ArrowRight size={14} />
           </Link>
