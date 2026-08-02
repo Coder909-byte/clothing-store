@@ -7,10 +7,10 @@
 
 @theme {
   /* ── Palette ────────────────────────────────────────────────────────────── */
-  --color-olive:        #6B7A4A;
-  --color-olive-dark:   #3D4A2A;
-  --color-olive-light:  #8A9A62;
-  --color-olive-muted:  #6B7A4A1A; /* 10% opacity */
+  --color-olive:        #4A5A2E;
+  --color-olive-dark:   #2E3A1C;
+  --color-olive-light:  #6B7A4A;
+  --color-olive-muted:  #4A5A2E1A; /* 10% opacity */
 
   --color-ivory:        #F5F0E8;
   --color-ivory-warm:   #EDE8DC;

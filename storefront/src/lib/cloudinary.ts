@@ -30,7 +30,7 @@ export const MEDIA = {
     hero: {
       publicId: 'dont-tell-mama/home/hero-video',
       fallbackVideoUrl: PEXELS_HERO_VIDEO,
-      fallbackPosterUrl: ph(1920, 1080, "Don't Tell Mama", '3D4A2A', 'F5F0E8'),
+      fallbackPosterUrl: ph(1920, 1080, '', '3D4A2A', 'F5F0E8'),
     },
     lookbook: {
       publicIds: [
