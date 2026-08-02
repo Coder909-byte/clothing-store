@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dtm_postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: dtm_user
+      POSTGRES_PASSWORD: dtm_password
+      POSTGRES_DB: dont_tell_mama
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dtm_user -d dont_tell_mama']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Uncomment to run Medusa in Docker (optional — use `pnpm dev:backend` for local dev instead)
+  # medusa:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: dtm_medusa
+  #   restart: unless-stopped
+  #   ports:
+  #     - '9000:9000'
+  #   environment:
+  #     DATABASE_URL: postgres://dtm_user:dtm_password@postgres:5432/dont_tell_mama
+  #     JWT_SECRET: change_me
+  #     COOKIE_SECRET: change_me
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+volumes:
+  postgres_data:
