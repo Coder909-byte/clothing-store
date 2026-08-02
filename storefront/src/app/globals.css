@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Don't Tell Mama — Design System
+   Theme: Olive Green · Ivory · Gold
+   ───────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* ── Palette ────────────────────────────────────────────────────────────── */
+  --color-olive:        #6B7A4A;
+  --color-olive-dark:   #3D4A2A;
+  --color-olive-light:  #8A9A62;
+  --color-olive-muted:  #6B7A4A1A; /* 10% opacity */
+
+  --color-ivory:        #F5F0E8;
+  --color-ivory-warm:   #EDE8DC;
+  --color-ivory-cool:   #FAF8F4;
+
+  --color-gold:         #C9A84C;
+  --color-gold-light:   #DFC070;
+  --color-gold-dark:    #A07830;
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --font-sans:    var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-cormorant), Georgia, serif;
+
+  /* ── Spacing / Sizing ───────────────────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+
+  /* ── Shadows ────────────────────────────────────────────────────────────── */
+  --shadow-card: 0 4px 24px -4px rgba(107, 122, 74, 0.12);
+  --shadow-hover: 0 8px 40px -8px rgba(107, 122, 74, 0.22);
+
+  /* ── Transitions ────────────────────────────────────────────────────────── */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Base resets / global styles
+   ───────────────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: #3a3530; /* warm near-black */
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+/* ── Display / heading font ─────────────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  line-height: 1.2;
+}
+
+/* ── Focus ring ─────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Utility layers
+   ───────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Olive-tinted glassmorphism panel */
+  .glass-panel {
+    background: rgba(245, 240, 232, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(107, 122, 74, 0.12);
+  }
+
+  /* Shimmer loading animation */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-ivory-warm) 25%,
+      var(--color-ivory-cool) 50%,
+      var(--color-ivory-warm) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Gold underline on hover */
+  .link-gold {
+    position: relative;
+    display: inline-block;
+  }
+  .link-gold::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--color-gold);
+    transition: width 0.3s var(--ease-smooth);
+  }
+  .link-gold:hover::after { width: 100%; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   shadcn/ui variable bridge
+   (maps Tailwind theme tokens → shadcn CSS vars used by Radix components)
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --background:         245 240 232;   /* ivory */
+  --foreground:         58 53 48;      /* warm near-black */
+  --card:               245 240 232;
+  --card-foreground:    58 53 48;
+  --popover:            245 240 232;
+  --popover-foreground: 58 53 48;
+  --primary:            107 122 74;    /* olive */
+  --primary-foreground: 245 240 232;   /* ivory */
+  --secondary:          237 232 220;   /* ivory-warm */
+  --secondary-foreground: 58 53 48;
+  --muted:              237 232 220;
+  --muted-foreground:   120 113 108;
+  --accent:             201 168 76;    /* gold */
+  --accent-foreground:  26 26 26;
+  --destructive:        220 38 38;
+  --destructive-foreground: 255 255 255;
+  --border:             107 122 74 / 0.15;
+  --input:              107 122 74 / 0.15;
+  --ring:               201 168 76;    /* gold focus ring */
+  --radius:             0.5rem;
+}
+
+.dark {
+  --background:         26 30 20;
+  --foreground:         245 240 232;
+  --card:               35 42 24;
+  --card-foreground:    245 240 232;
+  --popover:            35 42 24;
+  --popover-foreground: 245 240 232;
+  --primary:            138 154 98;
+  --primary-foreground: 26 30 20;
+  --secondary:          50 58 35;
+  --secondary-foreground: 245 240 232;
+  --muted:              50 58 35;
+  --muted-foreground:   180 174 165;
+  --accent:             201 168 76;
+  --accent-foreground:  26 26 26;
+  --destructive:        239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border:             245 240 232 / 0.1;
+  --input:              245 240 232 / 0.1;
+  --ring:               201 168 76;
+}
