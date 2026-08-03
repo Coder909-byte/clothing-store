@@ -11,12 +11,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@medusajs/medusa": "^2.0.0",
     "@medusajs/framework": "^2.0.0",
+    "@medusajs/medusa": "^2.0.0",
     "@medusajs/modules-sdk": "^2.0.0"
   },
   "devDependencies": {
+    "@medusajs/cli": "^2.18.0",
     "@types/node": "^20",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.0"
   }
 }

@@ -16,7 +16,7 @@ const CATEGORIES = [
   { name: 'Home', handle: 'home', description: "Objects with a quiet, confident presence." },
 ]
 
-const PRODUCTS_BY_CATEGORY: Record<string, { title: string; description: string; price: number }[]> = {
+const PRODUCTS_BY_CATEGORY: Record<string, { title: string; description: string; price: number; imageUrl?: string }[]> = {
   clothing: [
     { title: 'The Linen Tunic', description: 'Relaxed silhouette in pure linen.', price: 4200 },
     { title: 'Wide-Leg Trousers', description: 'Vintage-inspired high-waist trousers.', price: 3800 },
@@ -39,6 +39,15 @@ const PRODUCTS_BY_CATEGORY: Record<string, { title: string; description: string;
     { title: 'Brass Oil Diffuser', description: 'Traditional wick diffuser in brass.', price: 2600 },
   ],
 }
+
+// Featured products for homepage
+const FEATURED_PRODUCTS = [
+  { handle: 'product-1', title: 'Product 1', description: 'A beautifully crafted piece.', price: 13999, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg' },
+  { handle: 'product-2', title: 'Product 2', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751684/ac0c006f-f437-4853-bcda-b35984240d33_mmioak.jpg' },
+  { handle: 'product-3', title: 'Product 3', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751734/c1a2255a-0677-4108-8189-153ed282a41d_mzgqgp.jpg' },
+  { handle: 'product-4', title: 'Product 4', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751819/ace583f9-f928-403c-af7c-d213621a8dda_bcf540.jpg' },
+  { handle: 'product-5', title: 'Product 5', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785752903/1864aca2-2ffd-4acc-aaaf-01bb5e1cfc41_xxbvtt.jpg' },
+]
 
 export default async function seed({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
@@ -126,6 +135,30 @@ export default async function seed({ container }: ExecArgs) {
         },
       ])
     }
+  }
+
+  // ── 7. Featured Products ──────────────────────────────────────────────────
+  logger.info('Creating featured products…')
+  for (const product of FEATURED_PRODUCTS) {
+    await productModuleService.createProducts([
+      {
+        title: product.title,
+        handle: product.handle,
+        description: product.description,
+        status: 'published' as any,
+        images: [{ url: product.imageUrl }],
+        thumbnail: product.imageUrl,
+        options: [{ title: 'Size', values: ['XS', 'S', 'M', 'L', 'XL'] }],
+        variants: [
+          {
+            title: 'Default',
+            sku: `${product.handle}-default`,
+            prices: [{ amount: product.price, currency_code: 'inr' }],
+            options: { Size: 'M' },
+          } as any,
+        ],
+      },
+    ])
   }
 
   logger.info('✅ Seed complete! Products, region, and sales channel created.')
