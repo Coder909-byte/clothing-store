@@ -19,7 +19,7 @@ const PEXELS_HERO_VIDEO =
 
 // ─── Placeholder image helper ─────────────────────────────────────────────────
 const ph = (w: number, h: number, label: string, bg = '6B7A4A', fg = 'F5F0E8') =>
-  `https://placehold.co/${w}x${h}/${bg}/${fg}?text=${encodeURIComponent(label)}`
+  `https://placehold.co/${w}x${h}/${bg}/${fg}`
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Registry
@@ -30,7 +30,7 @@ export const MEDIA = {
     hero: {
       publicId: 'dont-tell-mama/home/hero-video',
       fallbackVideoUrl: PEXELS_HERO_VIDEO,
-      fallbackPosterUrl: ph(1920, 1080, '', '3D4A2A', 'F5F0E8'),
+      fallbackPosterUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg',
     },
     lookbook: {
       publicIds: [

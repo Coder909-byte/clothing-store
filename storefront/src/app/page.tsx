@@ -106,13 +106,13 @@ export default async function HomePage() {
                     priority={false}
                   />
                 </div>
-                {/* Overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-end bg-gradient-to-t from-olive-dark/70 via-transparent to-transparent p-6 text-center">
-                  <h3 className="font-display text-2xl font-semibold text-ivory">{cat.label}</h3>
-                  <p className="mt-1 text-sm text-ivory/70">{cat.tagline}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-gold opacity-0 transition-all duration-300 group-hover:opacity-100">
-                    Explore <ArrowRight size={12} />
-                  </span>
+                {/* Bordered SHOP NOW overlay */}
+                <div className="absolute inset-0 flex items-center justify-center p-6">
+                  <div className="border border-ivory px-8 py-3 transition-all duration-300 group-hover:scale-105">
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ivory">
+                      Shop Now
+                    </span>
+                  </div>
                 </div>
               </Link>
             )
