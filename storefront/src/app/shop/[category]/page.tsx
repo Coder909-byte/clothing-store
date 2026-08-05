@@ -28,6 +28,18 @@ const CATEGORY_META: Record<string, { title: string; description: string }> = {
     title: 'Home',
     description: 'Objects with a quiet, confident presence.',
   },
+  'fusion-sets': {
+    title: 'Fusion Sets',
+    description: 'Contemporary silhouettes with a timeless appeal.',
+  },
+  drapes: {
+    title: 'Drapes',
+    description: 'Fluid elegance in every drape.',
+  },
+  'statement-sets': {
+    title: 'Statement Sets',
+    description: 'Bold pieces that speak volumes.',
+  },
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -50,12 +62,32 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
   const { sort = 'created_at' } = await searchParams
   const meta = CATEGORY_META[category] ?? CATEGORY_META['all']!
 
+  // Hardcoded category-to-product mappings for new categories
+  const CATEGORY_PRODUCT_HANDLES: Record<string, string[]> = {
+    'fusion-sets': ['product-3'], // Ivory Dust
+    drapes: ['product-1'], // Golden Haze
+    'statement-sets': ['product-2', 'product-4', 'product-5'], // Celestial Maze, Cocoa Dusk, Moonveil
+  }
+
   // Fetch products from Medusa
   const filters: Record<string, unknown> = {}
   if (category !== 'all') {
-    filters.category_handle = [category]
+    // For new custom categories, we'll fetch all products and filter client-side
+    // For existing categories (clothing, accessories, home), use category_handle filter
+    if (CATEGORY_PRODUCT_HANDLES[category]) {
+      filters.limit = 100 // Fetch enough products to cover all
+    } else {
+      filters.category_handle = [category]
+    }
   }
   const { products } = await getProducts({ ...filters, order: sort })
+
+  // Filter products for custom categories
+  let filteredProducts = products
+  if (category !== 'all' && CATEGORY_PRODUCT_HANDLES[category]) {
+    const allowedHandles = new Set(CATEGORY_PRODUCT_HANDLES[category])
+    filteredProducts = products.filter((p) => allowedHandles.has(p.handle))
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -75,7 +107,7 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-4xl font-semibold text-olive-dark">{meta.title}</h1>
-            <p className="mt-2 text-sm text-stone-500">{products.length} products</p>
+            <p className="mt-2 text-sm text-stone-500">{filteredProducts.length} products</p>
           </div>
           {/* Sort */}
           <select
@@ -109,7 +141,7 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
 
       {/* Product grid */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-3">
-        {products.map((product) => {
+        {filteredProducts.map((product) => {
           const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
           return (
             <Link key={product.id} href={`/product/${product.handle}`} className="group">
@@ -135,7 +167,7 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
         })}
       </div>
 
-      {products.length === 0 && (
+      {filteredProducts.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-24 text-center">
           <p className="font-display text-2xl text-stone-400">No products found</p>
           <p className="text-sm text-stone-500">Try adjusting your filters or browse all products.</p>

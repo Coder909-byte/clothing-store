@@ -76,7 +76,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Shop by Category — Product Grid ───────────────────────────── */}
+      {/* ── Shop by Category — Category Tiles ──────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
@@ -87,46 +87,75 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredProducts.slice(0, 5).map((product) => {
-            const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
-            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
-            return (
-              <Link
-                key={product.id}
-                href={`/product/${product.handle}`}
-                className="group relative overflow-hidden rounded-lg"
-              >
-                <div className="aspect-[3/4] overflow-hidden bg-ivory-warm">
-                  <Image
-                    src={thumbnail}
-                    alt={`Product ${product.handle}`}
-                    width={600}
-                    height={800}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    priority={false}
-                  />
-                </div>
-                {/* Price and SHOP NOW overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-olive-dark/40 p-6 transition-all duration-300 group-hover:bg-olive-dark/50">
-                  <p className="text-xl font-semibold text-ivory">
-                    {new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(price)}
-                  </p>
-                  <div className="border border-ivory px-8 py-3 transition-all duration-300 group-hover:scale-105">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ivory">
-                      Shop Now
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        {/* Hardcoded category-to-product mappings */}
+        {(() => {
+          // Build a lookup map from product handle to product
+          const productMap = new Map(
+            featuredProducts.map((p) => [p.handle, p])
+          )
+
+          const categories = [
+            {
+              slug: 'fusion-sets',
+              label: 'Fusion Sets',
+              productHandles: ['product-3'], // Ivory Dust
+            },
+            {
+              slug: 'drapes',
+              label: 'Drapes',
+              productHandles: ['product-1'], // Golden Haze
+            },
+            {
+              slug: 'statement-sets',
+              label: 'Statement Sets',
+              productHandles: ['product-2', 'product-4', 'product-5'], // Celestial Maze, Cocoa Dusk, Moonveil
+            },
+          ]
+
+          return (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {categories.map((cat) => {
+                // Use the first product's image for the tile background
+                const firstProduct = productMap.get(cat.productHandles[0])
+                const thumbnail =
+                  firstProduct?.thumbnail ||
+                  MEDIA.product(firstProduct?.handle ?? cat.slug).thumbnail.fallback
+
+                return (
+                  <Link
+                    key={cat.slug}
+                    href={`/shop/${cat.slug}`}
+                    className="group relative aspect-[3/4] overflow-hidden rounded-lg"
+                  >
+                    {/* Full-bleed background image */}
+                    <Image
+                      src={thumbnail}
+                      alt={cat.label}
+                      fill
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      priority={false}
+                    />
+
+                    {/* Dark overlay */}
+                    <div className="absolute inset-0 bg-olive-dark/40 transition-all duration-300 group-hover:bg-olive-dark/50" />
+
+                    {/* Centered SHOP NOW overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <h3 className="mb-4 font-display text-2xl font-semibold text-ivory">
+                        {cat.label}
+                      </h3>
+                      <div className="border border-ivory px-8 py-3 transition-all duration-300 group-hover:scale-105">
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ivory">
+                          Shop Now
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          )
+        })()}
       </section>
 
       {/* ── Featured Collection ───────────────────────────────────────── */}
