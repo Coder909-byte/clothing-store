@@ -7,9 +7,7 @@ import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
   { label: 'Shop', href: '/shop/all' },
-  { label: 'Clothing', href: '/shop/clothing' },
-  { label: 'Accessories', href: '/shop/accessories' },
-  { label: 'Home', href: '/shop/home' },
+  { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
