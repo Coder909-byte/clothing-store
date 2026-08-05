@@ -42,11 +42,11 @@ const PRODUCTS_BY_CATEGORY: Record<string, { title: string; description: string;
 
 // Featured products for homepage
 const FEATURED_PRODUCTS = [
-  { handle: 'product-1', title: 'Product 1', description: 'A beautifully crafted piece.', price: 13999, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg' },
-  { handle: 'product-2', title: 'Product 2', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751684/ac0c006f-f437-4853-bcda-b35984240d33_mmioak.jpg' },
-  { handle: 'product-3', title: 'Product 3', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751734/c1a2255a-0677-4108-8189-153ed282a41d_mzgqgp.jpg' },
-  { handle: 'product-4', title: 'Product 4', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751819/ace583f9-f928-403c-af7c-d213621a8dda_bcf540.jpg' },
-  { handle: 'product-5', title: 'Product 5', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785752903/1864aca2-2ffd-4acc-aaaf-01bb5e1cfc41_xxbvtt.jpg' },
+  { handle: 'product-1', title: 'Golden Haze', description: 'A beautifully crafted piece.', price: 13999, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg' },
+  { handle: 'product-2', title: 'Celestial Maze', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751684/ac0c006f-f437-4853-bcda-b35984240d33_mmioak.jpg' },
+  { handle: 'product-3', title: 'Ivory Dust', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751734/c1a2255a-0677-4108-8189-153ed282a41d_mzgqgp.jpg' },
+  { handle: 'product-4', title: 'Cocoa Dusk', description: 'A beautifully crafted piece.', price: 12000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785751819/ace583f9-f928-403c-af7c-d213621a8dda_bcf540.jpg' },
+  { handle: 'product-5', title: 'Moonveil', description: 'A beautifully crafted piece.', price: 13000, imageUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785752903/1864aca2-2ffd-4acc-aaaf-01bb5e1cfc41_xxbvtt.jpg' },
 ]
 
 export default async function seed({ container }: ExecArgs) {
