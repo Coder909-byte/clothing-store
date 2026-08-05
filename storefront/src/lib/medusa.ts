@@ -5,11 +5,12 @@ const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_URL ?? 'http://localhost:9000'
 export const medusa = new Medusa({
   baseUrl: MEDUSA_URL,
   debug: process.env.NODE_ENV === 'development',
+  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 })
 
 // ─── Typed helpers ────────────────────────────────────────────────────────────
 
-export async function getProducts(params?: Record<string, any>) {
+export async function getProducts(params?: Record<string, unknown>) {
   try {
     const { products, count, offset, limit } = await medusa.store.product.list(params)
     return { products, count, offset, limit }

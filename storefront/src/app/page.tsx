@@ -24,7 +24,7 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero Section ──────────────────────────────────────────────── */}
-      <section className="relative h-[92vh] min-h-[600px] overflow-hidden">
+      <section className="relative h-[92vh] min-h-[600px] overflow-hidden bg-olive-dark">
         {/* Video background */}
         <video
           autoPlay
@@ -76,7 +76,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Category Grid ─────────────────────────────────────────────── */}
+      {/* ── Shop by Category — Product Grid ───────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
@@ -87,27 +87,36 @@ export default async function HomePage() {
           </h2>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-3">
-          {CATEGORIES.map((cat) => {
-            const media = MEDIA.categories[cat.handle as keyof typeof MEDIA.categories]
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredProducts.slice(0, 5).map((product) => {
+            const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100
             return (
               <Link
-                key={cat.handle}
-                href={`/shop/${cat.handle}`}
+                key={product.id}
+                href={`/product/${product.handle}`}
                 className="group relative overflow-hidden rounded-lg"
               >
-                <div className="aspect-[3/4] overflow-hidden">
+                <div className="aspect-[3/4] overflow-hidden bg-ivory-warm">
                   <Image
-                    src={media.fallback}
-                    alt={cat.label}
+                    src={thumbnail}
+                    alt={`Product ${product.handle}`}
                     width={600}
                     height={800}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     priority={false}
                   />
                 </div>
-                {/* Bordered SHOP NOW overlay */}
-                <div className="absolute inset-0 flex items-center justify-center p-6">
+                {/* Price and SHOP NOW overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-olive-dark/40 p-6 transition-all duration-300 group-hover:bg-olive-dark/50">
+                  <p className="text-xl font-semibold text-ivory">
+                    {new Intl.NumberFormat('en-IN', {
+                      style: 'currency',
+                      currency: 'INR',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(price)}
+                  </p>
                   <div className="border border-ivory px-8 py-3 transition-all duration-300 group-hover:scale-105">
                     <span className="text-xs font-semibold uppercase tracking-[0.2em] text-ivory">
                       Shop Now
@@ -139,38 +148,38 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/* Horizontally scrollable product grid */}
-        <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-          {featuredProducts.map((product) => {
+        {/* Product grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredProducts.slice(0, 5).map((product) => {
             const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100
             return (
               <Link
                 key={product.id}
                 href={`/product/${product.handle}`}
-                className="group min-w-[260px] flex-shrink-0 sm:min-w-[280px]"
+                className="group relative overflow-hidden rounded-lg"
               >
-                <div className="aspect-[3/4] overflow-hidden rounded-lg bg-ivory-warm">
+                <div className="aspect-[3/4] overflow-hidden bg-ivory-warm">
                   <Image
                     src={thumbnail}
                     alt={product.title}
-                    width={400}
-                    height={533}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    width={600}
+                    height={800}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority={false}
                   />
                 </div>
-                 <div className="mt-3 space-y-1">
-                   <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
-                     {product.title}
-                   </h3>
-                   <p className="text-sm font-semibold text-olive">
-                     {new Intl.NumberFormat('en-IN', {
-                       style: 'currency',
-                       currency: 'INR',
-                       minimumFractionDigits: 0,
-                       maximumFractionDigits: 0,
-                    }).format((product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100)}
-                   </p>
-                 </div>
+                {/* Price overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-olive-dark/40 p-6 transition-all duration-300 group-hover:bg-olive-dark/50">
+                  <p className="text-xl font-semibold text-ivory">
+                    {new Intl.NumberFormat('en-IN', {
+                      style: 'currency',
+                      currency: 'INR',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(price)}
+                  </p>
+                </div>
               </Link>
             )
           })}
@@ -242,17 +251,20 @@ export default async function HomePage() {
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {MEDIA.home.lookbook.fallbacks.map((src, i) => (
-              <div key={i} className="group aspect-square overflow-hidden rounded-md">
-                <Image
-                  src={src}
-                  alt={`Moodboard image ${i + 1}`}
-                  width={800}
-                  height={800}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-            ))}
+            {featuredProducts.slice(0, 5).map((product) => {
+              const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+              return (
+                <div key={product.id} className="group aspect-square overflow-hidden rounded-md">
+                  <Image
+                    src={thumbnail}
+                    alt={product.title}
+                    width={800}
+                    height={800}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>

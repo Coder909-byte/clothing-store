@@ -29,7 +29,7 @@ export const MEDIA = {
   home: {
     hero: {
       publicId: 'dont-tell-mama/home/hero-video',
-      fallbackVideoUrl: PEXELS_HERO_VIDEO,
+      fallbackVideoUrl: 'https://res.cloudinary.com/thx8mokj/video/upload/v1785752713/05_wxajfy.mp4',
       fallbackPosterUrl: 'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg',
     },
     lookbook: {
@@ -37,11 +37,15 @@ export const MEDIA = {
         'dont-tell-mama/home/lookbook-01',
         'dont-tell-mama/home/lookbook-02',
         'dont-tell-mama/home/lookbook-03',
+        'dont-tell-mama/home/lookbook-04',
+        'dont-tell-mama/home/lookbook-05',
       ],
       fallbacks: [
-        ph(800, 1000, 'Lookbook 01'),
-        ph(800, 1000, 'Lookbook 02'),
-        ph(800, 1000, 'Lookbook 03'),
+        'https://res.cloudinary.com/thx8mokj/image/upload/v1785750195/DSC00367_mmjpcb.jpg',
+        'https://res.cloudinary.com/thx8mokj/image/upload/v1785751684/ac0c006f-f437-4853-bcda-b35984240d33_mmioak.jpg',
+        'https://res.cloudinary.com/thx8mokj/image/upload/v1785751734/c1a2255a-0677-4108-8189-153ed282a41d_mzgqgp.jpg',
+        'https://res.cloudinary.com/thx8mokj/image/upload/v1785751819/ace583f9-f928-403c-af7c-d213621a8dda_bcf540.jpg',
+        'https://res.cloudinary.com/thx8mokj/image/upload/v1785752903/1864aca2-2ffd-4acc-aaaf-01bb5e1cfc41_xxbvtt.jpg',
       ],
     },
     featuredBanner: {
