@@ -153,14 +153,14 @@ export default async function ShopPage({
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
-                    <div className="mt-3 space-y-1">
-                      <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
-                        {product.title}
-                      </h3>
-                      <p className="text-sm font-semibold text-olive">
-                        {formatPrice((product.variants?.[0] as { prices?: { amount?: number }[] })?.prices?.[0]?.amount || 0)}
-                      </p>
-                    </div>
+                      <div className="mt-3 space-y-1">
+                        <h3 className="text-sm font-medium text-stone-800 group-hover:text-olive transition-colors">
+                          {product.title}
+                        </h3>
+                        <p className="text-sm font-semibold text-olive">
+                          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((product.variants?.[0]?.calculated_price?.calculated_amount || 0))}
+                        </p>
+                      </div>
                   </Link>
                 )
               })}

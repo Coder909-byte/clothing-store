@@ -127,7 +127,7 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
                   {product.title}
                 </h3>
                 <p className="text-sm font-semibold text-olive">
-                  {formatPrice((product.variants?.[0] as { prices?: { amount?: number }[] })?.prices?.[0]?.amount || 0)}
+                  {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((product.variants?.[0]?.calculated_price?.calculated_amount || 0))}
                 </p>
               </div>
             </Link>

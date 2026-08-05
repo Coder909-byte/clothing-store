@@ -9,10 +9,15 @@ export const medusa = new Medusa({
 })
 
 // ─── Typed helpers ────────────────────────────────────────────────────────────
+const DEFAULT_REGION_ID = 'reg_01KZ8EA7BQRM4M5NTMN1C9GZX2'
 
 export async function getProducts(params?: Record<string, unknown>) {
   try {
-    const { products, count, offset, limit } = await medusa.store.product.list(params)
+    const { products, count, offset, limit } = await medusa.store.product.list({
+      region_id: DEFAULT_REGION_ID,
+      fields: '*variants.calculated_price',
+      ...params,
+    })
     return { products, count, offset, limit }
   } catch (_e) {
     return { products: [], count: 0, offset: 0, limit: 0 }
@@ -21,14 +26,17 @@ export async function getProducts(params?: Record<string, unknown>) {
 
 export async function getProduct(handle: string) {
   try {
-    const { products } = await medusa.store.product.list({ handle })
+    const { products } = await medusa.store.product.list({
+      handle,
+      region_id: DEFAULT_REGION_ID,
+      fields: '*variants.calculated_price',
+    })
     if (!products || !products.length) return null
     return products[0] ?? null
   } catch (_e) {
     return null
   }
 }
-
 export async function getCategories() {
   try {
     const { product_categories } = await medusa.store.category.list()

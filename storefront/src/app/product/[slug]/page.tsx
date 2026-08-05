@@ -28,7 +28,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound()
 
   const media = MEDIA.product(slug)
-  const primaryPrice = (product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100
+  const primaryPrice = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
   const sizes = product.variants?.map((v) => v.title) || ['XS', 'S', 'M', 'L', 'XL']
   const categoryHandle = product.categories?.[0]?.handle || 'clothing'
 

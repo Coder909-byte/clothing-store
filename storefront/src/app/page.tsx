@@ -90,7 +90,7 @@ export default async function HomePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featuredProducts.slice(0, 5).map((product) => {
             const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
-            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100
+            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
             return (
               <Link
                 key={product.id}
@@ -152,7 +152,7 @@ export default async function HomePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featuredProducts.slice(0, 5).map((product) => {
             const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
-            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0) / 100
+            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
             return (
               <Link
                 key={product.id}
