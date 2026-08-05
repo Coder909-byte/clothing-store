@@ -13,7 +13,7 @@ export function formatPrice(amount: number, currency = 'INR') {
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount / 100)
+  }).format(amount)
 }
 
 /** Cart ID storage key */
