@@ -9,54 +9,25 @@ export const metadata: Metadata = {
 const REFUND_POLICY = `
 **Last updated: January 2025**
 
-At Don't Tell Mama, we want you to love every piece you order. If something doesn't feel right, we make returns simple.
+## Exchange Policy
 
-## Return Window
+Since garments are made to order, we don't offer exchanges. One free alteration is included per order; the customer covers any shipping costs related to the alteration. Custom or made-to-measure orders are not eligible for exchange.
 
-We accept returns within **30 days** of delivery. Items must be:
-- Unworn and unwashed
-- In original packaging with all tags attached
-- Free from signs of wear, alterations, or damage
+## Return Policy
 
-## How to Initiate a Return
+All sales are final. We don't offer returns or refunds on any order. We recommend reviewing your order carefully, including size and customization details, before completing your purchase.
 
-1. Email us at **returns@donttellmama.in** with your order number and reason for return
-2. We'll review and send you a prepaid return label within 24 hours
-3. Pack the item securely in its original packaging
-4. Drop off at the nearest courier location
+## Damages and Issues
 
-## Refund Timeline
+Please record a video while unboxing your package. If an item arrives damaged, defective, or incorrect, contact our support team immediately with the video and your order number so we can help resolve it.
 
-Once we receive and inspect your return (2-3 business days), we'll process your refund:
-- **5-7 business days** to reflect in your original payment method
-- You'll receive email confirmation when the refund is initiated
+## Exceptions / Non-Returnable Items
 
-## Refund Amount
+Sale or discounted items are not eligible for return under any circumstance.
 
-- Full refund of the product price and any applicable taxes
-- Original shipping charges are non-refundable (unless the return is due to our error)
-- Return shipping is free for all domestic orders
+## Contact Us
 
-## Exchanges
-
-We offer **free size exchanges** on clothing items. Contact us at **returns@donttellmama.in** and we'll arrange a pickup of the original item and delivery of the new size.
-
-## Non-Returnable Items
-
-- Sale items marked as "final sale"
-- Custom-sized garments (unless there's a manufacturing defect)
-- Items returned after 30 days
-- Products showing signs of wear, washing, or alteration
-
-## Damaged or Defective Items
-
-If you receive a damaged or defective product, please contact us within **48 hours** of delivery with photos. We'll arrange a replacement or full refund at no cost to you.
-
-## Contact for Returns
-
-**Email:** returns@donttellmama.in  
-**Phone:** +91-XXXX-XXXXXX  
-**Address:** Don't Tell Mama Returns, Mumbai, Maharashtra, India
+For any questions or concerns, please reach out to us at **support@donttellmama.com**.
 `.trim()
 
 export default function RefundPolicyPage() {

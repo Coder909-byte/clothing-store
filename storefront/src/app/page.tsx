@@ -357,7 +357,7 @@ export default async function HomePage() {
             {[
               { icon: '🌿', label: 'Sustainably Made' },
               { icon: '🇮🇳', label: 'Crafted in India' },
-              { icon: '📦', label: 'Free Shipping ₹2000+' },
+              { icon: '📦', label: 'Shipping ₹99 on All Orders' },
               { icon: '↩️', label: '30-Day Returns' },
             ].map(({ icon, label }) => (
               <div key={label} className="flex flex-col items-center gap-2">

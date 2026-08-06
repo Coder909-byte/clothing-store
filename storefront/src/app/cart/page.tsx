@@ -35,7 +35,7 @@ const PLACEHOLDER_ITEMS = [
 export default function CartPage() {
   const items = PLACEHOLDER_ITEMS
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal >= 200000 ? 0 : 9900
+  const shipping = 9900
   const total = subtotal + shipping
 
   return (
@@ -117,13 +117,11 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? <span className="text-olive">Free</span> : formatPrice(shipping)}</span>
+                <span>{formatPrice(shipping)}</span>
               </div>
-              {shipping > 0 && (
-                <p className="text-xs text-stone-400">
-                  Free shipping on orders over {formatPrice(200000)}
-                </p>
-              )}
+              <p className="text-xs text-stone-400">
+                Shipping ₹99 on all orders
+              </p>
             </div>
 
             <div className="mt-6 border-t border-olive/10 pt-6">

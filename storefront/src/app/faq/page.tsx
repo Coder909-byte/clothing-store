@@ -8,12 +8,8 @@ export const metadata: Metadata = {
 
 const FAQS = [
   {
-    q: 'Do you ship across India?',
-    a: 'Yes, we ship to all major cities and pin codes across India via trusted courier partners. Standard delivery takes 5–7 business days.',
-  },
-  {
-    q: 'Is shipping free?',
-    a: 'Standard shipping is free on all orders above ₹2,000. For orders below this, a flat shipping fee of ₹99 applies.',
+    q: 'What are the shipping charges?',
+    a: 'Standard shipping is ₹99 on all orders.',
   },
   {
     q: 'What is your return policy?',

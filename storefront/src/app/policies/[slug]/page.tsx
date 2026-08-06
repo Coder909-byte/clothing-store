@@ -59,11 +59,11 @@ These terms are governed by the laws of India. Disputes shall be subject to the 
   'shipping-and-returns': {
     title: 'Shipping & Returns',
     content: `
-**Free shipping on orders over ₹2,000.**
+**Shipping ₹99 on all orders.**
 
 ## Shipping
 
-- **Standard Delivery**: 5–7 business days — Free on orders ₹2,000+, otherwise ₹99.
+- **Standard Delivery**: 5–7 business days — ₹99 on all orders.
 - **Express Delivery**: 2–3 business days — ₹199.
 - We ship across India via trusted courier partners.
 
