@@ -1,26 +1,25 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { getProduct } from '@/lib/medusa'
-import { MEDIA } from '@/lib/cloudinary'
 import ProductActions from './ProductActions'
-
-interface ProductVariant {
-  id: string
-  title?: string | null
-  calculated_price?: {
-    calculated_amount: number
-  }
-}
+import ProductGallery from './ProductGallery'
 
 interface Product {
   id: string
   title: string
   description?: string | null
   thumbnail?: string | null
-  variants?: ProductVariant[] | null
-  categories?: { handle: string }[]
+  variants?: Array<{
+    id: string
+    title?: string | null
+    calculated_price?: {
+      calculated_amount: number
+    }
+  }> | null
+  categories?: Array<{ handle: string }> | undefined
+  images?: Array<{ url: string }> | null
+  metadata?: Record<string, unknown> | null
 }
 
 interface Props {
@@ -42,9 +41,9 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(slug)
   if (!product) throw new Error('Product not found')
 
-  const media = MEDIA.product(slug)
   const primaryPrice = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
   const categoryHandle = product.categories?.[0]?.handle || 'clothing'
+  const productWithNonNullCategories = { ...product, categories: product.categories || undefined }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -61,31 +60,7 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid gap-12 lg:grid-cols-2">
         {/* ── Image Gallery ──────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Main image */}
-          <div className="col-span-2 overflow-hidden rounded-lg">
-            <Image
-              src={product.thumbnail || media.images[0]!.fallback}
-              alt={product.title}
-              width={800}
-              height={1000}
-              className="h-full w-full object-cover"
-              priority
-            />
-          </div>
-          {/* Secondary images */}
-          {media.images.slice(1, 3).map((img, i) => (
-            <div key={i} className="overflow-hidden rounded-md">
-              <Image
-                src={img.fallback}
-                alt={`${product.title} — view ${i + 2}`}
-                width={400}
-                height={500}
-                className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-              />
-            </div>
-          ))}
-        </div>
+        <ProductGallery product={product} title={product.title} />
 
         {/* ── Product Info ───────────────────────────────────────────── */}
         <div className="flex flex-col lg:py-4">
@@ -105,7 +80,7 @@ export default async function ProductPage({ params }: Props) {
           <p className="mt-6 leading-relaxed text-stone-600">{product.description || 'A beautifully crafted piece designed to last a lifetime.'}</p>
 
           {/* Client component for interactive elements */}
-          <ProductActions product={product} categoryHandle={categoryHandle} />
+          <ProductActions product={productWithNonNullCategories} categoryHandle={categoryHandle} />
         </div>
       </div>
     </div>
