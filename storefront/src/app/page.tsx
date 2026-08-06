@@ -336,13 +336,13 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="flex items-center justify-center">
-              <div className="aspect-square max-w-xs w-full rounded-lg bg-ivory-warm p-8">
+              <div className="aspect-[680/460] max-w-xl w-full rounded-lg bg-ivory-warm p-4">
                 <Image
-                  src={MEDIA.about.brand.fallback}
+                  src={MEDIA.sizeGuide.fallback}
                   alt="Size guide"
                   width={400}
                   height={400}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
               </div>
             </div>

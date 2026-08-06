@@ -90,6 +90,10 @@ export const MEDIA = {
       fallback: ph(400, 500, `Team Member ${i + 1}`, 'C9A84C', '1a1a1a'),
     })),
   },
+
+  sizeGuide: {
+    fallback: 'https://res.cloudinary.com/thx8mokj/image/upload/v1786000872/dtm_size_guide_ygrem5.png',
+  },
 } as const
 
 export type MediaRegistry = typeof MEDIA
