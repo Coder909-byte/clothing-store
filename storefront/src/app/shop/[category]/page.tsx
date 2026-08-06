@@ -122,23 +122,6 @@ export default async function ShopCategoryPage({ params, searchParams }: Props) 
         </div>
       </div>
 
-      {/* Category pills */}
-      <div className="mb-8 flex flex-wrap gap-2">
-        {Object.keys(CATEGORY_META).map((cat) => (
-          <Link
-            key={cat}
-            href={`/shop/${cat}`}
-            className={`rounded-full border px-4 py-1.5 text-xs font-semibold capitalize transition-colors ${
-              cat === category
-                ? 'border-olive bg-olive text-ivory'
-                : 'border-olive/20 text-stone-600 hover:border-olive hover:text-olive'
-            }`}
-          >
-            {cat}
-          </Link>
-        ))}
-      </div>
-
       {/* Product grid */}
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-3">
         {filteredProducts.map((product) => {
