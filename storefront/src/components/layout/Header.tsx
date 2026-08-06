@@ -2,8 +2,10 @@
 
 import Link from 'next/link'
 import { ShoppingBag, User, Search, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { getCart } from '@/lib/medusa'
+import { getCartId } from '@/lib/utils'
 
 const NAV_LINKS = [
   { label: 'Shop', href: '/shop/all' },
@@ -14,14 +16,35 @@ const NAV_LINKS = [
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
+
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      const cartId = getCartId()
+      if (!cartId) {
+        setCartCount(0)
+        return
+      }
+
+      const cart = await getCart(cartId)
+      if (cart?.items) {
+        const totalItems = cart.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0)
+        setCartCount(totalItems)
+      } else {
+        setCartCount(0)
+      }
+    }
+
+    fetchCartCount()
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 border-b border-olive/10 bg-ivory/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-display text-xl font-semibold tracking-tight text-olive">
-            Don&apos;t Tell Mama
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+          <span className="font-display text-xl font-semibold tracking-tight text-olive whitespace-nowrap">
+            Don't Tell Mama
           </span>
         </Link>
 
@@ -59,10 +82,12 @@ export function Header() {
             className="relative text-stone-600 transition-colors hover:text-olive"
           >
             <ShoppingBag size={20} />
-            {/* Cart count badge — wired up to real cart state later */}
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-ivory">
-              0
-            </span>
+            {/* Cart count badge */}
+            {cartCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-ivory">
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
           </Link>
           {/* Mobile hamburger */}
           <button

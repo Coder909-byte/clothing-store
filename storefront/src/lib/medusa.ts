@@ -37,6 +37,7 @@ export async function getProduct(handle: string) {
     return null
   }
 }
+
 export async function getCategories() {
   try {
     const { product_categories } = await medusa.store.category.list()
@@ -64,3 +65,35 @@ export async function createCart(regionId: string) {
   }
 }
 
+export async function addToCart(cartId: string, variantId: string, quantity: number = 1) {
+  try {
+    const { cart } = await medusa.store.cart.createLineItem(cartId, {
+      variant_id: variantId,
+      quantity,
+    })
+    return cart
+  } catch (_e) {
+    return null
+  }
+}
+
+export async function removeFromCart(cartId: string, lineItemId: string) {
+  try {
+    await medusa.store.cart.deleteLineItem(cartId, lineItemId)
+    // After deletion, retrieve the updated cart
+    return await getCart(cartId)
+  } catch (_e) {
+    return null
+  }
+}
+
+export async function updateCartLineItem(cartId: string, lineItemId: string, quantity: number) {
+  try {
+    const { cart } = await medusa.store.cart.updateLineItem(cartId, lineItemId, {
+      quantity,
+    })
+    return cart
+  } catch (_e) {
+    return null
+  }
+}

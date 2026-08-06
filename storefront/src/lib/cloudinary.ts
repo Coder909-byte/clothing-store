@@ -83,7 +83,7 @@ export const MEDIA = {
   about: {
     brand: {
       publicId: 'dont-tell-mama/about/brand',
-      fallback: ph(1000, 700, "Our Story", '3D4A2A', 'F5F0E8'),
+      fallback: 'https://res.cloudinary.com/thx8mokj/image/upload/v1786006832/1e9838f8-b9d4-46ec-9d1a-c418ad2fc65d_wuo5kt.jpg',
     },
     team: Array.from({ length: 3 }, (_, i) => ({
       publicId: `dont-tell-mama/about/team-0${i + 1}`,
