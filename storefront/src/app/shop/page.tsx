@@ -29,14 +29,20 @@ export default async function ShopPage({
   if (category && category !== 'all') {
     filters.category_handle = [category]
   }
-  if (minPrice || maxPrice) {
-    filters.variants = {
-      ...(minPrice && { prices: { amount: { gte: parseInt(minPrice) * 100 } } }),
-      ...(maxPrice && { prices: { amount: { lte: parseInt(maxPrice) * 100 } } }),
-    }
+  // Fetch all products first, then filter client-side by category
+  const { products: allProducts } = await getProducts({ order: sort })
+  
+  // Map categories to product handles
+  const categoryProductMap: Record<string, string[]> = {
+    'fusion-sets': ['product-3'],
+    'drapes': ['product-1'],
+    'statement-sets': ['product-2', 'product-4', 'product-5'],
   }
-
-  const { products } = await getProducts({ ...filters, order: sort })
+  
+  // Filter products by category if selected
+  const products = category && category !== 'all' 
+    ? allProducts.filter(p => categoryProductMap[category]?.includes(p.handle))
+    : allProducts
   
   // Hardcoded categories matching actual product collections
   const categories = [
@@ -107,31 +113,6 @@ export default async function ShopPage({
                 ))}
               </div>
             </div>
-
-            {/* Price filter */}
-            <div>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-stone-700">Price Range</h3>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  name="minPrice"
-                  placeholder="Min"
-                  defaultValue={minPrice}
-                  className="w-full rounded-md border border-olive/20 bg-ivory px-3 py-2 text-sm focus:border-olive focus:outline-none"
-                />
-                <span className="text-stone-400">—</span>
-                <input
-                  type="number"
-                  name="maxPrice"
-                  placeholder="Max"
-                  defaultValue={maxPrice}
-                  className="w-full rounded-md border border-olive/20 bg-ivory px-3 py-2 text-sm focus:border-olive focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Hidden sort field */}
-            <input type="hidden" name="sort" value={sort} />
 
             <button
               type="submit"
