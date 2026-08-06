@@ -29,7 +29,7 @@ interface CartItem {
 }
 
 export default function CartPageClient() {
-  const [cart, setCart] = useState<any>(null)
+  const [cart, setCart] = useState<unknown>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
