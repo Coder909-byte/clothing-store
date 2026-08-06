@@ -61,7 +61,7 @@ export default function AboutPage() {
 
           <div className="relative min-h-[400px] bg-olive-dark/10 lg:min-h-0">
             <Image
-              src={MEDIA.about.brand.fallback}
+              src="https://res.cloudinary.com/thx8mokj/image/upload/v1786006832/1e9838f8-b9d4-46ec-9d1a-c418ad2fc65d_wuo5kt.jpg"
               alt="Don't Tell Mama brand story"
               fill
               className="object-cover"
@@ -84,32 +84,6 @@ export default function AboutPage() {
               <p className="text-sm leading-relaxed text-stone-600">{body}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ── Team ────────────────────────────────────────────────────── */}
-      <section className="bg-olive-dark py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 text-center">
-            <h2 className="font-display text-4xl font-semibold text-ivory">The People Behind the Label</h2>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {MEDIA.about.team.map((member, i) => (
-              <div key={i} className="text-center">
-                <div className="mx-auto mb-4 h-48 w-48 overflow-hidden rounded-full">
-                  <Image
-                    src={member.fallback}
-                    alt={`Team member ${i + 1}`}
-                    width={192}
-                    height={192}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <p className="font-display text-lg font-semibold text-ivory">Team Member {i + 1}</p>
-                <p className="text-sm text-ivory/60">Co-founder</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
     </>
