@@ -46,10 +46,16 @@ export default function AboutPage() {
               knows herself.
             </h1>
             <p className="mt-6 max-w-md leading-relaxed text-stone-600">
-              Don&apos;t Tell Mama began in a Mumbai apartment in 2021 — a rejection of throwaway fashion and a love letter to the things worth keeping. We believe a wardrobe should feel like a collection of trusted companions, not a catalogue of regrets.
+              We never came from a fashion background. We were simply two best friends with big dreams and countless ideas. We explored different paths, started over more times than we can count, and learned that failure was just part of finding our purpose.
             </p>
             <p className="mt-4 max-w-md leading-relaxed text-stone-600">
-              We make fewer pieces than most brands. We take longer to design them. We work with craftspeople who care as much as we do.
+              Then, we stopped following trends and started following our hearts.
+            </p>
+            <p className="mt-4 max-w-md leading-relaxed text-stone-600">
+              What began as a shared love for creativity turned into Don&apos;t Tell Mama. Through endless trials, rejected samples, and obsessive attention to detail, we created a brand that reflects who we are—modern, timeless, and thoughtfully crafted.
+            </p>
+            <p className="mt-4 max-w-md leading-relaxed text-stone-600">
+              Every piece is designed with intention, made to feel luxurious, and created to be worth every penny.
             </p>
             <Link
               href="/shop/all"
