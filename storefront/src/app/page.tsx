@@ -237,13 +237,10 @@ export default async function HomePage() {
             </h2>
             <div className="mt-6 space-y-4 text-stone-600">
               <p>
-                Don&apos;t Tell Mama began in a Mumbai apartment in 2021 — a rejection of throwaway fashion and a love letter to the things worth keeping. We believe a wardrobe should feel like a collection of trusted companions, not a catalogue of regrets.
+                We never came from a fashion background. We were simply two best friends with big dreams and countless ideas. We explored different paths, started over more times than we can count, and learned that failure was just part of finding our purpose.
               </p>
               <p>
-                We make fewer pieces than most brands. We take longer to design them. We work with craftspeople who care as much as we do. Every stitch, every seam, every fabric choice is intentional.
-              </p>
-              <p>
-                Our garments are designed to last decades and grow more beautiful with age. Because true luxury isn&apos;t about logos — it&apos;s about knowing what you love and sticking with it.
+                Then, we stopped following trends and started following our hearts. What began as a shared love for creativity turned into Don't Tell Mama.
               </p>
             </div>
             <Link
