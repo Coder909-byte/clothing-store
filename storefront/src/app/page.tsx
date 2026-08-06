@@ -279,21 +279,37 @@ export default async function HomePage() {
               The DTM Aesthetic
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {featuredProducts.slice(0, 5).map((product) => {
-              const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
-              return (
-                <div key={product.id} className="group aspect-square overflow-hidden rounded-md">
-                  <Image
-                    src={thumbnail}
-                    alt={product.title}
-                    width={800}
-                    height={800}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-              )
-            })}
+          <div className="marquee-container">
+            <div className="marquee-track">
+              {featuredProducts.slice(0, 5).map((product) => {
+                const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+                return (
+                  <div key={product.id} className="marquee-item">
+                    <Image
+                      src={thumbnail}
+                      alt={product.title}
+                      width={800}
+                      height={800}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )
+              })}
+              {featuredProducts.slice(0, 5).map((product) => {
+                const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
+                return (
+                  <div key={`duplicate-${product.id}`} className="marquee-item">
+                    <Image
+                      src={thumbnail}
+                      alt={product.title}
+                      width={800}
+                      height={800}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </section>
