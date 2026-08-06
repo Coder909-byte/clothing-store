@@ -2,9 +2,7 @@ import Link from 'next/link'
 
 const FOOTER_LINKS = {
   Shop: [
-    { label: 'Clothing', href: '/shop/clothing' },
-    { label: 'Accessories', href: '/shop/accessories' },
-    { label: 'Home', href: '/shop/home' },
+    { label: 'Shop ', href: '/shop' },
   ],
   Help: [
     { label: 'FAQ', href: '/faq' },

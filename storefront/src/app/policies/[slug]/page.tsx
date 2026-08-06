@@ -9,51 +9,83 @@ const POLICIES: Record<string, { title: string; content: string }> = {
   'privacy-policy': {
     title: 'Privacy Policy',
     content: `
-**Last updated: January 2025**
 
-At Don't Tell Mama, your privacy matters as much as your style. This Privacy Policy explains how we collect, use, and protect your personal information.
+
+At Don't Tell Mama, we are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you shop with us.
 
 ## Information We Collect
 
-- **Account Information**: Name, email address, and password when you create an account.
-- **Order Information**: Shipping address, billing address, and payment details (processed securely via Razorpay — we never store card numbers).
-- **Usage Data**: Pages visited, products viewed, and browsing patterns to improve your experience.
+When you place an order or create an account, we collect the following personal information:
+
+- **Name** — for order processing and delivery
+- **Email address** — for order confirmations, shipping updates, and customer support
+- **Phone number** — for delivery coordination and order-related communication
+- **Shipping address** — to deliver your order
+- **Payment details** — processed securely through Razorpay (we do not store card numbers or payment information on our servers)
 
 ## How We Use Your Information
 
-We use your information to process orders, send shipping updates, personalise your shopping experience, and improve our products and services. We do not sell your data to third parties.
+We use your personal data for the following purposes:
 
-## Cookies
+- Processing and fulfilling your orders
+- Arranging shipping and delivery of your purchases
+- Providing customer support and responding to your queries
+- Sending order-related communications (confirmations, shipping updates, delivery notifications)
+- Improving our products, services, and shopping experience
 
-We use essential cookies for cart functionality and optional analytics cookies (which you can decline). See our Cookie Policy for details.
+## Data Security
 
-## Contact
+We implement appropriate security measures to protect your personal information from unauthorised access, alteration, or disclosure.
 
-For privacy-related queries, email us at **privacy@donttellmama.in**.
+## Third-Party Sharing
+
+We do not sell, trade, or rent your personal information to third parties. Your data is shared only with essential service providers (courier partners, payment processors) necessary to complete your order.
+
+## Your Rights
+
+You have the right to access, correct, or request deletion of your personal data. For any privacy-related concerns or requests, please contact us.
+
+## Contact Us
+
+For questions or concerns about this Privacy Policy, please reach out to us at **privacy@dontsellmama.com**.
     `.trim(),
   },
   'terms-of-service': {
     title: 'Terms of Service',
     content: `
-**Last updated: January 2025**
 
-By accessing Don't Tell Mama's website and placing orders, you agree to these Terms of Service.
 
-## Orders & Payment
+By accessing and using the Don't Tell Mama website, you agree to be bound by these Terms of Service. Please read them carefully before placing an order.
 
-All prices are in Indian Rupees (INR) inclusive of applicable taxes. We reserve the right to cancel orders in case of pricing errors or stock discrepancies.
+## Acceptance of Terms
 
-## Returns & Exchanges
+Your use of this website constitutes acceptance of these Terms of Service. If you do not agree with any part of these terms, please do not use our site or place orders.
 
-Items may be returned within 30 days of delivery in original, unworn condition. Sale items are final. See our Shipping & Returns policy for full details.
+## Made-to-Order Policy
+
+All products on Don't Tell Mama are made to order. Each piece is crafted specifically for you upon order placement. Please review your order details, including size and customisation options, carefully before completing your purchase. All sales are final as per our Refund Policy.
 
 ## Intellectual Property
 
-All content — photographs, copy, brand assets — is the exclusive property of Don't Tell Mama and may not be reproduced without written permission.
+All content on this website — including photographs, product images, copy, designs, logos, and brand assets — is the exclusive property of Don't Tell Mama and is protected by copyright and trademark laws. No content may be reproduced, distributed, or used without our prior written permission.
+
+## Orders & Pricing
+
+- All prices are in Indian Rupees (INR) inclusive of applicable taxes
+- We reserve the right to cancel orders in case of pricing errors, stock discrepancies, or suspected fraud
+- Product availability is subject to change without notice
+
+## Limitation of Liability
+
+Don't Tell Mama shall not be liable for any indirect, incidental, or consequential damages arising from the use of our products or website.
 
 ## Governing Law
 
-These terms are governed by the laws of India. Disputes shall be subject to the exclusive jurisdiction of courts in Mumbai, Maharashtra.
+These Terms of Service are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Mumbai, Maharashtra.
+
+## Changes to Terms
+
+We reserve the right to update these terms at any time. Continued use of the website following any changes constitutes acceptance of the updated terms.
     `.trim(),
   },
   'shipping-and-returns': {
