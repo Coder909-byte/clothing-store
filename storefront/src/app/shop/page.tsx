@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, SlidersHorizontal } from 'lucide-react'
 import { MEDIA } from '@/lib/cloudinary'
-import { getProducts, getCategories } from '@/lib/medusa'
+import { getProducts } from '@/lib/medusa'
 import { formatPrice } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -37,7 +37,13 @@ export default async function ShopPage({
   }
 
   const { products } = await getProducts({ ...filters, order: sort })
-  const categories = await getCategories()
+  
+  // Hardcoded categories matching actual product collections
+  const categories = [
+    { id: '1', name: 'Fusion Sets', handle: 'fusion-sets' },
+    { id: '2', name: 'Drapes', handle: 'drapes' },
+    { id: '3', name: 'Statement Sets', handle: 'statement-sets' },
+  ]
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
