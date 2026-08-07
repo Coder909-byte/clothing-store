@@ -9,13 +9,7 @@ export const metadata: Metadata = {
 const REFUND_POLICY = `
 **Last updated: January 2025**
 
-## Exchange Policy
-
-Since garments are made to order, we don't offer exchanges. One free alteration is included per order; the customer covers any shipping costs related to the alteration. Custom or made-to-measure orders are not eligible for exchange.
-
-## Return Policy
-
-All sales are final. We don't offer returns or refunds on any order. We recommend reviewing your order carefully, including size and customization details, before completing your purchase.
+No exchanges or returns are accepted on any order. Since each piece is made to order, we're unable to offer exchanges or refunds once an order is placed. Please review your size, measurements, and customization details carefully before completing your purchase.
 
 ## Damages and Issues
 

@@ -15,7 +15,7 @@ export async function getProducts(params?: Record<string, unknown>) {
   try {
     const { products, count, offset, limit } = await medusa.store.product.list({
       region_id: DEFAULT_REGION_ID,
-      fields: 'id,title,handle,thumbnail,*images,*variants.calculated_price,metadata',
+      fields: 'id,title,handle,thumbnail,*images,variants.title,variants.id,*variants.calculated_price,metadata',
       ...params,
     })
     return { products, count, offset, limit }
@@ -29,7 +29,7 @@ export async function getProduct(handle: string) {
     const { products } = await medusa.store.product.list({
       handle,
       region_id: DEFAULT_REGION_ID,
-      fields: 'id,title,handle,thumbnail,*images,*variants.calculated_price,metadata',
+      fields: 'id,title,handle,thumbnail,*images,variants.title,variants.id,*variants.calculated_price,metadata',
     })
     if (!products || !products.length) return null
     return products[0] ?? null
