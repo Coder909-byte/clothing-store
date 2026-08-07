@@ -18,6 +18,7 @@ interface ProductVariant {
 
 interface Product {
   id: string
+  handle: string
   title: string
   description?: string | null
   variants?: ProductVariant[] | null
@@ -31,10 +32,21 @@ interface Props {
 
 export default function ProductActions({ product, categoryHandle }: Props) {
   const [selectedSize, setSelectedSize] = useState<string>('')
+  const [selectedBralette, setSelectedBralette] = useState<string>('')
+  const [selectedHeight, setSelectedHeight] = useState<string>('')
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
   const primaryPrice = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
+
+  const heightRanges = [
+    { label: "5'0 ft - 5'1 ft / 40 in", value: "5'0-5'1" },
+    { label: "5'2 ft - 5'3 ft / 41.5 in", value: "5'2-5'3" },
+    { label: "5'4 ft - 5'5 ft / 43.5 in", value: "5'4-5'5" },
+    { label: "5'6 ft - 5'7 ft / 45 in", value: "5'6-5'7" },
+    { label: "5'8 ft - 5'9 ft / 47 in", value: "5'8-5'9" },
+    { label: "5'10 ft - 5'11 ft / 48 in", value: "5'10-5'11" },
+  ]
 
   const handleAddToCart = async () => {
     if (!selectedSize) {
@@ -53,8 +65,16 @@ export default function ProductActions({ product, categoryHandle }: Props) {
         setCartId(cartId)
       }
 
-      // Add item to cart
-      const updatedCart = await addToCart(cartId, selectedSize, 1)
+      // Add item to cart with metadata
+      const metadata: Record<string, unknown> = {}
+      if (selectedHeight) {
+        metadata.height_range = selectedHeight
+      }
+      if (selectedBralette) {
+        metadata.bralette_option = selectedBralette
+      }
+
+      const updatedCart = await addToCart(cartId, selectedSize, 1, metadata)
       if (!updatedCart) throw new Error('Failed to add to cart')
 
       setAdded(true)
@@ -96,6 +116,58 @@ export default function ProductActions({ product, categoryHandle }: Props) {
               </button>
             )
           })}
+        </div>
+      </div>
+
+      {/* Bralette option - only for Ivory Dust (product-3) */}
+      {product.handle === 'product-3' && (
+        <div className="mt-6">
+          <p className="mb-3 text-sm font-semibold text-stone-700">Bralette Option</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedBralette('with')}
+              className={`rounded-md border px-3 py-2.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                selectedBralette === 'with'
+                  ? 'border-olive bg-olive text-ivory'
+                  : 'border-olive/20 text-stone-700 hover:border-olive hover:bg-olive hover:text-ivory'
+              }`}
+            >
+              With Bralette
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedBralette('without')}
+              className={`rounded-md border px-3 py-2.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                selectedBralette === 'without'
+                  ? 'border-olive bg-olive text-ivory'
+                  : 'border-olive/20 text-stone-700 hover:border-olive hover:bg-olive hover:text-ivory'
+              }`}
+            >
+              Without Bralette
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Height selector */}
+      <div className="mt-6">
+        <p className="mb-3 text-sm font-semibold text-stone-700">Select Height Range</p>
+        <div className="grid grid-cols-2 gap-2">
+          {heightRanges.map((range) => (
+            <button
+              key={range.value}
+              type="button"
+              onClick={() => setSelectedHeight(range.value)}
+              className={`rounded-md border px-3 py-2.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                selectedHeight === range.value
+                  ? 'border-olive bg-olive text-ivory'
+                  : 'border-olive/20 text-stone-700 hover:border-olive hover:bg-olive hover:text-ivory'
+              }`}
+            >
+              {range.label}
+            </button>
+          ))}
         </div>
       </div>
 

@@ -65,11 +65,12 @@ export async function createCart(regionId: string) {
   }
 }
 
-export async function addToCart(cartId: string, variantId: string, quantity: number = 1) {
+export async function addToCart(cartId: string, variantId: string, quantity: number = 1, metadata?: Record<string, unknown>) {
   try {
     const { cart } = await medusa.store.cart.createLineItem(cartId, {
       variant_id: variantId,
       quantity,
+      metadata,
     })
     return cart
   } catch (_e) {
