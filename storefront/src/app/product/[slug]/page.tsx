@@ -5,6 +5,8 @@ import { getProduct } from '@/lib/medusa'
 import ProductActions from './ProductActions'
 import ProductGallery from './ProductGallery'
 
+export const revalidate = 0
+
 interface Product {
   id: string
   title: string

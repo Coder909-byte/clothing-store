@@ -6,6 +6,8 @@ import { MEDIA } from '@/lib/cloudinary'
 import { getProducts } from '@/lib/medusa'
 import { formatPrice } from '@/lib/utils'
 
+export const revalidate = 0
+
 interface Props {
   params: Promise<{ category: string }>
   searchParams: Promise<{ sort?: string; page?: string }>

@@ -6,6 +6,8 @@ import { MEDIA } from '@/lib/cloudinary'
 import { getProducts } from '@/lib/medusa'
 import { formatPrice } from '@/lib/utils'
 
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Shop All',
   description: 'The complete Don\'t Tell Mama collection — slow-fashion essentials designed to last.',
