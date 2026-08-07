@@ -2,12 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Mail, Lock } from 'lucide-react'
+import { medusa } from '@/lib/medusa'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
+  const [isLoading, setIsLoading] = useState(false)
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {}
@@ -26,15 +30,38 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
       return
     }
 
-    console.log('Login form submitted:', { email, password })
-    alert('Login functionality will be implemented soon. Check console for form data.')
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      const response = await medusa.auth.login('customer', 'emailpass', {
+        email,
+        password,
+      })
+
+      // Handle different response types from Medusa auth
+      // @ts-expect-error - Medusa SDK response types vary
+      const token = response?.token || response
+
+      if (token) {
+        localStorage.setItem('dtm_auth_token', token as string)
+        router.push('/account')
+      } else {
+        setErrors({ general: 'Invalid email or password' })
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setErrors({ general: 'Invalid email or password' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -92,12 +119,20 @@ export default function LoginPage() {
             {errors.password && <p className="mt-1.5 text-sm text-red-600">{errors.password}</p>}
           </div>
 
+          {/* General error message */}
+          {errors.general && (
+            <div className="rounded-md bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-600">{errors.general}</p>
+            </div>
+          )}
+
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full rounded-md bg-olive px-4 py-3 text-sm font-semibold text-ivory transition-all duration-200 hover:bg-olive-dark active:scale-[0.98]"
+            disabled={isLoading}
+            className="w-full rounded-md bg-olive px-4 py-3 text-sm font-semibold text-ivory transition-all duration-200 hover:bg-olive-dark active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Log In
+            {isLoading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 

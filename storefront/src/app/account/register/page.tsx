@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { User, Mail, Lock } from 'lucide-react'
+import { medusa } from '@/lib/medusa'
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -14,7 +17,9 @@ export default function RegisterPage() {
     lastName?: string
     email?: string
     password?: string
+    general?: string
   }>({})
+  const [isLoading, setIsLoading] = useState(false)
 
   const validateForm = () => {
     const newErrors: {
@@ -48,15 +53,52 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
       return
     }
 
-    console.log('Registration form submitted:', { firstName, lastName, email, password })
-    alert('Account creation will be implemented soon. Check console for form data.')
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      // Step 1: Register auth identity
+      const authResponse = await medusa.auth.register('customer', 'emailpass', {
+        email,
+        password,
+      })
+
+      // @ts-expect-error - Medusa SDK response types vary
+      const token = authResponse?.token || authResponse
+
+      if (!token) {
+        setErrors({ general: 'Failed to create account. Please try again.' })
+        return
+      }
+
+      // Step 2: Create customer record
+      await medusa.store.customer.create({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+      })
+
+      // Step 3: Store token and redirect
+      localStorage.setItem('dtm_auth_token', token as string)
+      router.push('/account')
+    } catch (error) {
+      console.error('Registration error:', error)
+      // Check if it's an email already exists error
+      if (error instanceof Error && error.message.includes('already exists')) {
+        setErrors({ general: 'Email already registered' })
+      } else {
+        setErrors({ general: 'Failed to create account. Please try again.' })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -161,12 +203,20 @@ export default function RegisterPage() {
             <p className="mt-1.5 text-xs text-stone-500">Must be at least 8 characters</p>
           </div>
 
+          {/* General error message */}
+          {errors.general && (
+            <div className="rounded-md bg-red-50 border border-red-200 p-3">
+              <p className="text-sm text-red-600">{errors.general}</p>
+            </div>
+          )}
+
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full rounded-md bg-olive px-4 py-3 text-sm font-semibold text-ivory transition-all duration-200 hover:bg-olive-dark active:scale-[0.98]"
+            disabled={isLoading}
+            className="w-full rounded-md bg-olive px-4 py-3 text-sm font-semibold text-ivory transition-all duration-200 hover:bg-olive-dark active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Account
+            {isLoading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
