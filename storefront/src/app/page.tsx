@@ -181,7 +181,6 @@ export default async function HomePage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featuredProducts.slice(0, 5).map((product) => {
             const thumbnail = product.thumbnail || MEDIA.product(product.handle).thumbnail.fallback
-            const price = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
             return (
               <Link
                 key={product.id}
@@ -197,17 +196,6 @@ export default async function HomePage() {
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     priority={false}
                   />
-                </div>
-                {/* Price overlay */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-olive-dark/40 p-6 transition-all duration-300 group-hover:bg-olive-dark/50">
-                  <p className="text-xl font-semibold text-ivory">
-                    {new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(price)}
-                  </p>
                 </div>
               </Link>
             )
@@ -240,7 +228,7 @@ export default async function HomePage() {
                 We never came from a fashion background. We were simply two best friends with big dreams and countless ideas. We explored different paths, started over more times than we can count, and learned that failure was just part of finding our purpose.
               </p>
               <p>
-                Then, we stopped following trends and started following our hearts. What began as a shared love for creativity turned into Don't Tell Mama.
+                Then, we stopped following trends and started following our hearts. What began as a shared love for creativity turned into Don&apos;t Tell Mama.
               </p>
             </div>
             <Link

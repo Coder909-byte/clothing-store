@@ -10,6 +10,7 @@ import CustomSizeForm from './CustomSizeForm'
 interface ProductVariant {
   id: string
   title?: string | null
+  options?: Array<{ title?: string | null; value?: string | null }> | null
   calculated_price?: {
     calculated_amount?: number | null
   } | null
@@ -77,19 +78,24 @@ export default function ProductActions({ product, categoryHandle }: Props) {
           </Link>
         </div>
         <div className="flex flex-wrap gap-2">
-          {product.variants?.map((variant) => (
-            <button
-              key={variant.id}
-              onClick={() => setSelectedSize(variant.id)}
-              className={`h-10 min-w-[48px] rounded-md border px-3 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
-                selectedSize === variant.id
-                  ? 'border-olive bg-olive text-ivory'
-                  : 'border-olive/20 text-stone-700 hover:border-olive hover:bg-olive hover:text-ivory'
-              }`}
-            >
-              {variant.title}
-            </button>
-          ))}
+          {product.variants?.map((variant) => {
+            // Try title first, fall back to Size option from options array
+            const sizeOption = variant.options?.find(opt => opt.title === 'Size' || opt.title === 'size')
+            const sizeLabel = variant.title || sizeOption?.value || ''
+            return (
+              <button
+                key={variant.id}
+                onClick={() => setSelectedSize(variant.id)}
+                className={`h-10 min-w-[48px] rounded-md border px-3 text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gold ${
+                  selectedSize === variant.id
+                    ? 'border-olive bg-olive text-ivory'
+                    : 'border-olive/20 text-stone-700 hover:border-olive hover:bg-olive hover:text-ivory'
+                }`}
+              >
+                {sizeLabel || '—'}
+              </button>
+            )
+          })}
         </div>
       </div>
 

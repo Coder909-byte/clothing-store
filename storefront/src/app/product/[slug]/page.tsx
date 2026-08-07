@@ -13,6 +13,7 @@ interface Product {
   variants?: Array<{
     id: string
     title?: string | null
+    options?: Array<{ title?: string | null; value?: string | null }> | null
     calculated_price?: {
       calculated_amount: number
     }

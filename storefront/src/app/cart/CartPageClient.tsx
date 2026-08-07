@@ -18,6 +18,11 @@ interface LineItem {
   product_handle?: string
 }
 
+interface Cart {
+  id: string
+  items?: LineItem[]
+}
+
 interface CartItem {
   id: string
   title: string
@@ -29,7 +34,7 @@ interface CartItem {
 }
 
 export default function CartPageClient() {
-  const [cart, setCart] = useState<unknown>(null)
+  const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 

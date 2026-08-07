@@ -44,7 +44,7 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <span className="font-display text-xl font-semibold tracking-tight text-olive whitespace-nowrap">
-            Don't Tell Mama
+            Don&apos;t Tell Mama
           </span>
         </Link>
 
