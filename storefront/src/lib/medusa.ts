@@ -60,7 +60,8 @@ export async function createCart(regionId: string) {
   try {
     const { cart } = await medusa.store.cart.create({ region_id: regionId })
     return cart
-  } catch (_e) {
+  } catch (e) {
+    console.error('createCart error:', e)
     return null
   }
 }
@@ -73,7 +74,8 @@ export async function addToCart(cartId: string, variantId: string, quantity: num
       metadata,
     })
     return cart
-  } catch (_e) {
+  } catch (e) {
+    console.error('addToCart error:', e)
     return null
   }
 }

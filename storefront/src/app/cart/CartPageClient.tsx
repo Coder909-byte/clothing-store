@@ -91,7 +91,7 @@ export default function CartPageClient() {
   })) || []
 
   const subtotal = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-  const shipping = 9900
+  const shipping = 99
   const total = subtotal + shipping
 
   if (loading) {
