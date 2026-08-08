@@ -106,7 +106,7 @@ export default function RegisterPage() {
       <div className="rounded-lg border border-olive/10 bg-ivory-cool p-8">
         <div className="mb-8 text-center">
           <h1 className="font-display text-3xl font-semibold text-olive-dark">Create Account</h1>
-          <p className="mt-2 text-sm text-stone-500">Join the Don't Tell Mama community</p>
+          <p className="mt-2 text-sm text-stone-500">Join the Don&apos;t Tell Mama community</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
