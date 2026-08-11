@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@devx-commerce/razorpay": "6.0.0-beta.0",
     "@medusajs/framework": "^2.0.0",
     "@medusajs/medusa": "^2.0.0",
     "@medusajs/modules-sdk": "^2.0.0"

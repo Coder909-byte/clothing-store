@@ -41,19 +41,18 @@ export default defineConfig({
     {
       resolve: '@medusajs/medusa/payment',
       key: Modules.PAYMENT,
-      // TODO: Add Razorpay provider once @medusajs/payment-razorpay is stable
-      // options: {
-      //   providers: [
-      //     {
-      //       resolve: '@medusajs/payment-razorpay',
-      //       id: 'razorpay',
-      //       options: {
-      //         key_id: process.env.RAZORPAY_KEY_ID,
-      //         key_secret: process.env.RAZORPAY_KEY_SECRET,
-      //       },
-      //     },
-      //   ],
-      // },
+      options: {
+        providers: [
+          {
+            resolve: '@devx-commerce/razorpay/providers/payment-razorpay',
+            id: 'razorpay',
+            options: {
+              key_id: process.env.RAZORPAY_KEY_ID,
+              key_secret: process.env.RAZORPAY_KEY_SECRET,
+            },
+          },
+        ],
+      },
     },
     {
       resolve: '@medusajs/medusa/inventory',
