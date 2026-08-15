@@ -135,25 +135,15 @@ export async function addShippingMethod(cartId: string, optionId: string) {
   }
 }
 
-export async function createPaymentSessions(cartId: string) {
+export async function createPaymentSessions(cart: any) {
   try {
-    // @ts-ignore
-    const response = await medusa.store.payment.initiatePaymentSession({
-      cart_id: cartId,
-      provider_id: 'razorpay'
+    const response = await medusa.store.payment.initiatePaymentSession(cart, {
+      provider_id: 'pp_razorpay_razorpay',
     })
-    return (response as any).payment_collection || (response as any).cart || response
+    return response.payment_collection || null
   } catch (e) {
     console.error('createPaymentSessions error:', e)
-    // Fallback if SDK method differs slightly
-    try {
-      // @ts-ignore
-      const { cart } = await medusa.store.cart.createPaymentSessions(cartId)
-      return cart
-    } catch (e2) {
-      console.error('createPaymentSessions fallback error:', e2)
-      return null
-    }
+    return null
   }
 }
 

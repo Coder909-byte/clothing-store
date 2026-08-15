@@ -86,7 +86,7 @@ export default function CheckoutPage() {
       }
 
       // 3. Create payment session (initializes Razorpay)
-      const cartWithPayment = await createPaymentSessions(cart.id)
+      const cartWithPayment = await createPaymentSessions(cart)
       if (!cartWithPayment) throw new Error('Failed to create payment session')
 
       // Ensure Razorpay script is loaded
