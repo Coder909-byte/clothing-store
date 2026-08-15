@@ -100,3 +100,70 @@ export async function updateCartLineItem(cartId: string, lineItemId: string, qua
     return null
   }
 }
+
+export async function updateCart(cartId: string, data: Record<string, any>) {
+  try {
+    const { cart } = await medusa.store.cart.update(cartId, data)
+    return cart
+  } catch (e) {
+    console.error('updateCart error:', e)
+    return null
+  }
+}
+
+export async function getShippingOptions(cartId: string) {
+  try {
+    const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
+      cart_id: cartId,
+    })
+    return shipping_options
+  } catch (e) {
+    console.error('getShippingOptions error:', e)
+    return []
+  }
+}
+
+export async function addShippingMethod(cartId: string, optionId: string) {
+  try {
+    const { cart } = await medusa.store.cart.addShippingMethod(cartId, {
+      option_id: optionId,
+    })
+    return cart
+  } catch (e) {
+    console.error('addShippingMethod error:', e)
+    return null
+  }
+}
+
+export async function createPaymentSessions(cartId: string) {
+  try {
+    // @ts-ignore
+    const response = await medusa.store.payment.initiatePaymentSession({
+      cart_id: cartId,
+      provider_id: 'razorpay'
+    })
+    return (response as any).payment_collection || (response as any).cart || response
+  } catch (e) {
+    console.error('createPaymentSessions error:', e)
+    // Fallback if SDK method differs slightly
+    try {
+      // @ts-ignore
+      const { cart } = await medusa.store.cart.createPaymentSessions(cartId)
+      return cart
+    } catch (e2) {
+      console.error('createPaymentSessions fallback error:', e2)
+      return null
+    }
+  }
+}
+
+export async function completeCart(cartId: string) {
+  try {
+    // @ts-ignore
+    const response = await medusa.store.cart.complete(cartId)
+    return response
+  } catch (e) {
+    console.error('completeCart error:', e)
+    return { error: e }
+  }
+}
