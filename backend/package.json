@@ -14,7 +14,8 @@
     "@devx-commerce/razorpay": "6.0.0-beta.0",
     "@medusajs/framework": "^2.0.0",
     "@medusajs/medusa": "^2.0.0",
-    "@medusajs/modules-sdk": "^2.0.0"
+    "@medusajs/modules-sdk": "^2.0.0",
+    "resend": "^6.19.0"
   },
   "devDependencies": {
     "@medusajs/cli": "^2.18.0",

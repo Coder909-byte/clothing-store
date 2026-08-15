@@ -61,6 +61,7 @@ export default function CheckoutPage() {
 
     try {
       // 1. Update cart with email and shipping address
+      console.log('DEBUG phone value:', phone, 'email:', email)
       const updatedCart = await updateCart(cart.id, {
         email,
         shipping_address: {
