@@ -109,7 +109,8 @@ export default function CheckoutPage() {
       // 4. Open Razorpay Checkout Modal
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: cartWithPayment.total,
+        // Use calculated total (fallback) instead of assuming cartWithPayment.total exists
+        amount: total, 
         currency: 'INR',
         name: "Don't Tell Mama",
         description: 'Order Payment',
