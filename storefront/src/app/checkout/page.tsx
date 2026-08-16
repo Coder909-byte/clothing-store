@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import { useRouter } from 'next/navigation'
-import { getCart, updateCart, getShippingOptions, addShippingMethod, createPaymentSessions, completeCart } from '@/lib/medusa'
+import { getCart, updateCart, getShippingOptions, addShippingMethod, createPaymentSessions, completeCart, updateCustomerPhone } from '@/lib/medusa'
 import { formatPrice, CART_ID_KEY } from '@/lib/utils'
 
 interface LineItem {

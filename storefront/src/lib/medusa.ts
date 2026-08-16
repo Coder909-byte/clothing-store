@@ -157,3 +157,12 @@ export async function completeCart(cartId: string) {
     return { error: e }
   }
 }
+export async function updateCustomerPhone(phone: string) {
+  try {
+    const { customer } = await medusa.store.customer.update({ phone })
+    return customer
+  } catch (e) {
+    console.error('updateCustomerPhone error:', e)
+    return null
+  }
+}
