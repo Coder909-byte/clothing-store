@@ -86,6 +86,9 @@ export default function CheckoutPage() {
         console.warn('No shipping options found, continuing without one')
       }
 
+      // 2.5. Update customer phone (Razorpay requires this on the customer record)
+      await updateCustomerPhone(phone)
+
       // 3. Create payment session (initializes Razorpay)
       const cartWithPayment = await createPaymentSessions(cart)
       if (!cartWithPayment) throw new Error('Failed to create payment session')
