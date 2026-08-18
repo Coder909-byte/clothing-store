@@ -139,7 +139,10 @@ export async function createPaymentSessions(cart: any) {
     const response = await medusa.store.payment.initiatePaymentSession(cart, {
       provider_id: 'pp_razorpay_razorpay',
     })
-    return response.payment_collection || null
+    // Log to see the exact structure
+    console.log('createPaymentSessions response:', JSON.stringify(response, null, 2))
+    // Return the whole response – we'll parse it in the page
+    return response
   } catch (e) {
     console.error('createPaymentSessions error:', e)
     return null

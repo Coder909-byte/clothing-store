@@ -60,7 +60,7 @@ export default function CheckoutPage() {
     setError('')
 
     try {
-      // 1. Update cart with shipping address and email (no 'customer' object)
+      // 1. Update cart with shipping address and email
       console.log('DEBUG phone value:', phone, 'email:', email)
       const updatedCart = await updateCart(cart.id, {
         email,
@@ -77,46 +77,50 @@ export default function CheckoutPage() {
 
       if (!updatedCart) throw new Error('Failed to update cart address')
 
-      // 2. Update the customer's phone (this also gives us the customer object)
+      // 2. Update customer's phone (required for Razorpay)
       const customer = await updateCustomerPhone(phone)
       if (!customer) {
-        throw new Error('Failed to update customer phone – are you logged in?')
+        console.warn('Could not update customer phone, but continuing')
       }
 
-      // 3. Link the cart to this customer (so Razorpay sees the phone on the customer record)
-      const cartWithCustomer = await updateCart(updatedCart.id, {
-        customer_id: customer.id,
-      })
-      if (!cartWithCustomer) throw new Error('Failed to link customer to cart')
-
-      // 4. Add shipping method (use cartWithCustomer.id)
-      const options = await getShippingOptions(cartWithCustomer.id)
+      // 3. Add shipping method
+      const options = await getShippingOptions(updatedCart.id)
       if (options && options.length > 0) {
-        await addShippingMethod(cartWithCustomer.id, options[0].id)
+        await addShippingMethod(updatedCart.id, options[0].id)
       } else {
         console.warn('No shipping options found, continuing without one')
       }
 
-      // 5. Create payment session (pass cartWithCustomer, full object)
-      const cartWithPayment = await createPaymentSessions(cartWithCustomer)
-      if (!cartWithPayment) throw new Error('Failed to create payment session')
+      // 4. Create payment session (pass updatedCart, full object)
+      const paymentResponse = await createPaymentSessions(updatedCart)
+      if (!paymentResponse) throw new Error('Failed to create payment session')
+
+      // Extract the payment collection – it might be nested or the response itself
+      const paymentCollection = paymentResponse.payment_collection || paymentResponse
+      const paymentSessions = paymentCollection?.payment_sessions || []
+
+      // Find the Razorpay session
+      const razorpaySession = paymentSessions.find(
+        (s: any) => s.provider_id === 'pp_razorpay_razorpay'
+      )
+
+      // The order ID might be in the session's data, or directly on the collection
+      const sessionData = razorpaySession?.data || paymentCollection?.data
+
+      console.log('sessionData:', sessionData) // Debug log
+
+      if (!sessionData || !sessionData.id) {
+        console.error('No order ID found. Full paymentResponse:', paymentResponse)
+        throw new Error('Razorpay order ID missing from payment session')
+      }
 
       // Ensure Razorpay script is loaded
       if (!(window as any).Razorpay) {
         throw new Error('Razorpay SDK not loaded')
       }
 
-      // Extract session data (Medusa V2)
-      const sessionData = (cartWithPayment as any).payment_collection?.payment_sessions?.[0]?.data ??
-                          (cartWithPayment as any).payment_sessions?.find((s: any) => s.provider_id === 'razorpay')?.data ??
-                          (cartWithPayment as any).payment_session?.data
-
-      if (!sessionData || !sessionData.id) {
-        throw new Error('Razorpay order ID missing from payment session')
-      }
-
-      // 6. Open Razorpay Checkout Modal
-      const totalAmount = cartWithCustomer.total ?? (cartWithCustomer.subtotal ?? 0) + 9900
+      // 5. Open Razorpay modal
+      const totalAmount = updatedCart.total ?? (updatedCart.subtotal ?? 0) + 9900
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: totalAmount,
@@ -134,7 +138,7 @@ export default function CheckoutPage() {
         },
         handler: async function (response: any) {
           try {
-            const result = await completeCart(cartWithCustomer.id)
+            const result = await completeCart(updatedCart.id)
             if ('error' in result) {
               console.error('Error completing cart:', result.error)
               setError('Payment succeeded but failed to complete order. Please contact support.')
