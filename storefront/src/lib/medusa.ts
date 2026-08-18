@@ -137,7 +137,7 @@ export async function addShippingMethod(cartId: string, optionId: string) {
 
 export async function createPaymentSessions(cart: any) {
   try {
-    const response = await medusa.store.payment.initiatePaymentSession(cart, {
+    const response = await medusa.store.payment.initiatePaymentSession(cart.id, { // <-- Added .id
       provider_id: 'pp_razorpay_razorpay',
     })
     return response.payment_collection || null
@@ -146,7 +146,7 @@ export async function createPaymentSessions(cart: any) {
     return null
   }
 }
-
+   
 export async function completeCart(cartId: string) {
   try {
     // @ts-ignore
@@ -155,14 +155,5 @@ export async function completeCart(cartId: string) {
   } catch (e) {
     console.error('completeCart error:', e)
     return { error: e }
-  }
-}
-export async function updateCustomerPhone(phone: string) {
-  try {
-    const { customer } = await medusa.store.customer.update({ phone })
-    return customer
-  } catch (e) {
-    console.error('updateCustomerPhone error:', e)
-    return null
   }
 }

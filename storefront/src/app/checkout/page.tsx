@@ -60,7 +60,7 @@ export default function CheckoutPage() {
     setError('')
 
     try {
-      // 1. Update cart with email and shipping address
+      // 1. Update cart with address AND customer details (including phone)
       console.log('DEBUG phone value:', phone, 'email:', email)
       const updatedCart = await updateCart(cart.id, {
         email,
@@ -71,26 +71,31 @@ export default function CheckoutPage() {
           city,
           postal_code: postalCode,
           phone,
-          country_code: 'in', // Default region
+          country_code: 'in',
+        },
+        customer: {
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          phone,
         },
       })
 
-      if (!updatedCart) throw new Error('Failed to update cart address')
+      if (!updatedCart) throw new Error('Failed to update cart')
 
-      // 2. Add shipping method (fetch options and pick first)
-      const options = await getShippingOptions(cart.id)
+      // 2. Add shipping method (use updatedCart.id)
+      const options = await getShippingOptions(updatedCart.id)
       if (options && options.length > 0) {
-        await addShippingMethod(cart.id, options[0].id)
+        await addShippingMethod(updatedCart.id, options[0].id)
       } else {
-        // Fallback for demo or if no shipping methods are configured yet
         console.warn('No shipping options found, continuing without one')
       }
 
       // 2.5. Update customer phone (Razorpay requires this on the customer record)
       await updateCustomerPhone(phone)
 
-      // 3. Create payment session (initializes Razorpay)
-      const cartWithPayment = await createPaymentSessions(cart)
+      // 3. Create payment session (pass updatedCart)
+      const cartWithPayment = await createPaymentSessions(updatedCart)
       if (!cartWithPayment) throw new Error('Failed to create payment session')
 
       // Ensure Razorpay script is loaded
@@ -98,27 +103,25 @@ export default function CheckoutPage() {
         throw new Error('Razorpay SDK not loaded')
       }
 
-      // Medusa V2 stores payment session data differently.
-      // Usually cart.payment_collection.payment_sessions or cart.payment_sessions
-      // Let's check payment_sessions or payment_collection
-      const sessionData = (cartWithPayment as any).payment_collection?.payment_sessions?.[0]?.data ?? 
+      // Extract session data (Medusa V2)
+      const sessionData = (cartWithPayment as any).payment_collection?.payment_sessions?.[0]?.data ??
                           (cartWithPayment as any).payment_sessions?.find((s: any) => s.provider_id === 'razorpay')?.data ??
                           (cartWithPayment as any).payment_session?.data
 
       if (!sessionData || !sessionData.id) {
-        // Try falling back to simple mock if data missing (e.g. razorpay provider not fully configured)
         throw new Error('Razorpay order ID missing from payment session')
       }
 
       // 4. Open Razorpay Checkout Modal
+      // Use updatedCart for total, fallback to subtotal + 9900 if total not present
+      const totalAmount = updatedCart.total ?? (updatedCart.subtotal ?? 0) + 9900
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        // Use calculated total (fallback) instead of assuming cartWithPayment.total exists
-        amount: total, 
+        amount: totalAmount,
         currency: 'INR',
         name: "Don't Tell Mama",
         description: 'Order Payment',
-        order_id: sessionData.id, // Razorpay Order ID from Medusa backend
+        order_id: sessionData.id,
         prefill: {
           name: `${firstName} ${lastName}`,
           email,
@@ -129,15 +132,13 @@ export default function CheckoutPage() {
         },
         handler: async function (response: any) {
           try {
-            // Payment successful, authorize and complete cart
-            // Actually, in Medusa V2, razorpay webhook handles capture, but we can complete the cart here
-            const result = await completeCart(cart.id)
+            // Use updatedCart.id for completion
+            const result = await completeCart(updatedCart.id)
             if ('error' in result) {
               console.error('Error completing cart:', result.error)
               setError('Payment succeeded but failed to complete order. Please contact support.')
               setPlacing(false)
             } else {
-              // Order completed! Clear local cart and redirect
               localStorage.removeItem(CART_ID_KEY)
               router.push(`/order-confirmed/${result.order?.id || 'success'}`)
             }
@@ -156,7 +157,7 @@ export default function CheckoutPage() {
         setPlacing(false)
       })
       rzp.open()
-      
+
     } catch (err: any) {
       console.error('Checkout error:', err)
       setError(err.message || 'Something went wrong during checkout.')
@@ -184,7 +185,7 @@ export default function CheckoutPage() {
   }
 
   const subtotal = cart.subtotal ?? cart.items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-  const total = cart.total ?? (subtotal + 9900) // Fallback calculation
+  const total = cart.total ?? (subtotal + 9900)
 
   return (
     <>
