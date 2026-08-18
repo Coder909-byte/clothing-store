@@ -83,7 +83,6 @@ export async function addToCart(cartId: string, variantId: string, quantity: num
 export async function removeFromCart(cartId: string, lineItemId: string) {
   try {
     await medusa.store.cart.deleteLineItem(cartId, lineItemId)
-    // After deletion, retrieve the updated cart
     return await getCart(cartId)
   } catch (_e) {
     return null
@@ -137,7 +136,7 @@ export async function addShippingMethod(cartId: string, optionId: string) {
 
 export async function createPaymentSessions(cart: any) {
   try {
-    const response = await medusa.store.payment.initiatePaymentSession(cart.id, { // <-- Added .id
+    const response = await medusa.store.payment.initiatePaymentSession(cart, {
       provider_id: 'pp_razorpay_razorpay',
     })
     return response.payment_collection || null
@@ -146,7 +145,7 @@ export async function createPaymentSessions(cart: any) {
     return null
   }
 }
-   
+
 export async function completeCart(cartId: string) {
   try {
     // @ts-ignore
@@ -155,5 +154,38 @@ export async function completeCart(cartId: string) {
   } catch (e) {
     console.error('completeCart error:', e)
     return { error: e }
+  }
+}
+
+// ─── updateCustomerPhone (raw fetch, per gotcha #8) ────────────────────────
+
+export async function updateCustomerPhone(phone: string) {
+  try {
+    const token = localStorage.getItem('dtm_auth_token')
+    if (!token) {
+      console.warn('No auth token found, cannot update customer phone')
+      return null
+    }
+
+    const res = await fetch(`${MEDUSA_URL}/store/customers/me`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ phone }),
+    })
+
+    if (!res.ok) {
+      const errorText = await res.text()
+      throw new Error(`Failed to update customer phone: ${res.status} ${errorText}`)
+    }
+
+    const data = await res.json()
+    return data.customer
+  } catch (e) {
+    console.error('updateCustomerPhone error:', e)
+    return null
   }
 }
