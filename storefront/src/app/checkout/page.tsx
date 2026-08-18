@@ -95,24 +95,25 @@ export default function CheckoutPage() {
       const paymentResponse = await createPaymentSessions(updatedCart)
       if (!paymentResponse) throw new Error('Failed to create payment session')
 
-      // Extract the payment collection – it might be nested or the response itself
+      // The response might be the payment collection itself, or nested under .payment_collection
       const paymentCollection = paymentResponse.payment_collection || paymentResponse
-      const paymentSessions = paymentCollection?.payment_sessions || []
+      const sessions = paymentCollection?.payment_sessions || []
 
       // Find the Razorpay session
-      const razorpaySession = paymentSessions.find(
-        (s: any) => s.provider_id === 'pp_razorpay_razorpay'
-      )
-
-      // The order ID might be in the session's data, or directly on the collection
-      const sessionData = razorpaySession?.data || paymentCollection?.data
-
-      console.log('sessionData:', sessionData) // Debug log
-
-      if (!sessionData || !sessionData.id) {
-        console.error('No order ID found. Full paymentResponse:', paymentResponse)
-        throw new Error('Razorpay order ID missing from payment session')
+      const razorpaySession = sessions.find((s: any) => s.provider_id === 'pp_razorpay_razorpay')
+      if (!razorpaySession) {
+        console.error('No Razorpay session found in:', sessions)
+        throw new Error('Razorpay session not found')
       }
+
+      // Order ID is inside session.data
+      const sessionData = razorpaySession.data
+      if (!sessionData?.id) {
+        console.error('No order ID in session data:', sessionData)
+        throw new Error('Razorpay order ID missing')
+      }
+
+      const orderId = sessionData.id
 
       // Ensure Razorpay script is loaded
       if (!(window as any).Razorpay) {
@@ -127,7 +128,7 @@ export default function CheckoutPage() {
         currency: 'INR',
         name: "Don't Tell Mama",
         description: 'Order Payment',
-        order_id: sessionData.id,
+        order_id: orderId,
         prefill: {
           name: `${firstName} ${lastName}`,
           email,
