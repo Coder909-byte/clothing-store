@@ -85,17 +85,21 @@ export default function CheckoutPage() {
 
       // 3. Add shipping method
       const options = await getShippingOptions(updatedCart.id)
-      if (options && options.length > 0) {
-        await addShippingMethod(updatedCart.id, options[0].id)
-      } else {
-        console.warn('No shipping options found, continuing without one')
+      if (!options || options.length === 0) {
+        throw new Error('No shipping options available. Please contact support.')
       }
 
-      // 4. Create payment session (pass updatedCart, full object)
-      const paymentResponse = await createPaymentSessions(updatedCart)
+      await addShippingMethod(updatedCart.id, options[0].id)
+
+      // 4. Re-fetch cart to get the updated shipping method
+      const refreshedCart = await getCart(updatedCart.id)
+      if (!refreshedCart) throw new Error('Failed to refresh cart after adding shipping method')
+
+      // 5. Create payment session using the refreshed cart (full object)
+      const paymentResponse = await createPaymentSessions(refreshedCart)
       if (!paymentResponse) throw new Error('Failed to create payment session')
 
-      // The response might be the payment collection itself, or nested under .payment_collection
+      // Extract payment collection and sessions
       const paymentCollection = paymentResponse.payment_collection || paymentResponse
       const sessions = paymentCollection?.payment_sessions || []
 
@@ -120,8 +124,8 @@ export default function CheckoutPage() {
         throw new Error('Razorpay SDK not loaded')
       }
 
-      // 5. Open Razorpay modal
-      const totalAmount = updatedCart.total ?? (updatedCart.subtotal ?? 0) + 9900
+      // 6. Open Razorpay modal
+      const totalAmount = refreshedCart.total ?? (refreshedCart.subtotal ?? 0) + 9900
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: totalAmount,
@@ -139,7 +143,8 @@ export default function CheckoutPage() {
         },
         handler: async function (response: any) {
           try {
-            const result = await completeCart(updatedCart.id)
+            // Use refreshedCart.id for completion
+            const result = await completeCart(refreshedCart.id)
             if ('error' in result) {
               console.error('Error completing cart:', result.error)
               setError('Payment succeeded but failed to complete order. Please contact support.')
