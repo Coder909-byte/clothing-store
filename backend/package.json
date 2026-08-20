@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@devx-commerce/razorpay": "6.0.0-beta.0",
+    "@medusajs/admin-ui": "^2.1.18",
+    "@medusajs/admin-vite-plugin": "^2.19.0",
     "@medusajs/framework": "^2.0.0",
     "@medusajs/medusa": "^2.0.0",
     "@medusajs/modules-sdk": "^2.0.0",
