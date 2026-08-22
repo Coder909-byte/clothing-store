@@ -78,7 +78,7 @@ export default function CheckoutPage() {
       if (!updatedCart) throw new Error('Failed to update cart address')
 
       // 2. Update customer's phone (required for Razorpay)
-      const customer = await updateCustomerPhone(phone)
+      const customer = await updateCustomerPhone(updatedCart.id, phone)
       if (!customer) {
         console.warn('Could not update customer phone, but continuing')
       }

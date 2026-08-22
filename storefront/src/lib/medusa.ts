@@ -160,33 +160,19 @@ export async function completeCart(cartId: string) {
   }
 }
 
-// ─── updateCustomerPhone (raw fetch, per gotcha #8) ────────────────────────
-
-export async function updateCustomerPhone(phone: string) {
+// ─── updateCustomerPhone (via direct DB API route, bypasses auth entirely) ──
+export async function updateCustomerPhone(cartId: string, phone: string) {
   try {
-    const token = localStorage.getItem('dtm_auth_token')
-    if (!token) {
-      console.warn('No auth token found, cannot update customer phone')
+    const res = await fetch('/api/set-phone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart_id: cartId, phone }),
+    })
+    if (!res.ok) {
+      console.warn('set-phone failed:', await res.text())
       return null
     }
-
-    const res = await fetch(`${MEDUSA_URL}/store/customers/me`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? '',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ phone }),
-    })
-
-    if (!res.ok) {
-      const errorText = await res.text()
-      throw new Error(`Failed to update customer phone: ${res.status} ${errorText}`)
-    }
-
-    const data = await res.json()
-    return data.customer
+    return await res.json()
   } catch (e) {
     console.error('updateCustomerPhone error:', e)
     return null

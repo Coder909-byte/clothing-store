@@ -15,7 +15,7 @@ export async function GET() {
     const orders = ordersRes.rows
     const orderIds = orders.map((o) => o.id)
 
-    let itemsByOrder: Record<string, any[]> = {}
+    const itemsByOrder: Record<string, { title: string; quantity: number; unit_price: number }[]> = {}
     if (orderIds.length > 0) {
       const itemsRes = await pool.query(
         `SELECT order_id, title, quantity, unit_price FROM order_line_item WHERE order_id = ANY($1)`,
