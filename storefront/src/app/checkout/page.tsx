@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import { useRouter } from 'next/navigation'
-import { getCart, updateCart, getShippingOptions, addShippingMethod, createPaymentSessions, completeCart, updateCustomerPhone } from '@/lib/medusa'
+import { getCart, updateCart, getShippingOptions, addShippingMethod, createPaymentSessions, completeCart } from '@/lib/medusa'
 import { formatPrice, CART_ID_KEY } from '@/lib/utils'
+// Import the database pool for direct customer creation
+import { pool } from '@/lib/db'
 
 interface LineItem {
   id: string
@@ -20,8 +22,8 @@ interface Cart {
   items?: LineItem[]
   subtotal?: number
   total?: number
-  payment_sessions?: any[]
-  payment_session?: any
+  payment_sessions?: unknown[]
+  payment_session?: unknown
 }
 
 export default function CheckoutPage() {
@@ -41,15 +43,17 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState('')
 
   useEffect(() => {
-    const cartId = localStorage.getItem(CART_ID_KEY)
-    if (!cartId) {
-      setLoading(false)
-      return
-    }
-    getCart(cartId).then((c) => {
+    const loadCart = async () => {
+      const cartId = localStorage.getItem(CART_ID_KEY)
+      if (!cartId) {
+        setLoading(false)
+        return
+      }
+      const c = await getCart(cartId)
       setCart(c as Cart | null)
       setLoading(false)
-    })
+    }
+    loadCart()
   }, [])
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
@@ -60,7 +64,7 @@ export default function CheckoutPage() {
     setError('')
 
     try {
-      // 1. Update cart with shipping address and email
+      // 1. Update cart with shipping AND billing address
       console.log('DEBUG phone value:', phone, 'email:', email)
       const updatedCart = await updateCart(cart.id, {
         email,
@@ -73,30 +77,60 @@ export default function CheckoutPage() {
           phone,
           country_code: 'in',
         },
+        billing_address: {
+          first_name: firstName,
+          last_name: lastName,
+          address_1: address,
+          city,
+          postal_code: postalCode,
+          phone,
+          country_code: 'in',
+        },
       })
 
       if (!updatedCart) throw new Error('Failed to update cart address')
 
-      // 2. Update customer's phone (required for Razorpay)
-      const customer = await updateCustomerPhone(updatedCart.id, phone)
-      if (!customer) {
-        console.warn('Could not update customer phone, but continuing')
-      }
+      // 2. Ensure a customer record exists and is linked to the cart
+      //    This is required by the Razorpay plugin (it checks customer.phone)
+     const customerRes = await fetch('/api/set-customer', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email,
+    firstName,
+    lastName,
+    phone,
+    cartId: updatedCart.id,
+  }),
+})
+
+if (!customerRes.ok) {
+  const errorData = await customerRes.json()
+  throw new Error(errorData.error || 'Failed to set customer')
+}
+
+// Optionally parse response if needed
+await customerRes.json()
+       
+
+      // Re-fetch the cart to get the updated customer_id and other changes
+      const refreshedCart = await getCart(updatedCart.id)
+      if (!refreshedCart) throw new Error('Failed to refresh cart after customer creation')
 
       // 3. Add shipping method
-      const options = await getShippingOptions(updatedCart.id)
+      const options = await getShippingOptions(refreshedCart.id)
       if (!options || options.length === 0) {
         throw new Error('No shipping options available. Please contact support.')
       }
 
-      await addShippingMethod(updatedCart.id, options[0].id)
+      await addShippingMethod(refreshedCart.id, options[0].id)
 
-      // 4. Re-fetch cart to get the updated shipping method
-      const refreshedCart = await getCart(updatedCart.id)
-      if (!refreshedCart) throw new Error('Failed to refresh cart after adding shipping method')
+      // 4. Re-fetch cart after shipping method
+      const finalCart = await getCart(refreshedCart.id)
+      if (!finalCart) throw new Error('Failed to refresh cart after shipping method')
 
-      // 5. Create payment session using the refreshed cart (full object)
-      const paymentResponse = await createPaymentSessions(refreshedCart)
+      // 5. Create payment session using the final cart
+      const paymentResponse = await createPaymentSessions(finalCart)
       if (!paymentResponse) throw new Error('Failed to create payment session')
 
       // Extract payment collection and sessions
@@ -104,7 +138,8 @@ export default function CheckoutPage() {
       const sessions = paymentCollection?.payment_sessions || []
 
       // Find the Razorpay session
-      const razorpaySession = sessions.find((s: any) => s.provider_id === 'pp_razorpay_razorpay')
+      // sessions can be untyped; use any to avoid TS errors when accessing provider_id
+      const razorpaySession = sessions.find((s: any) => (s as any)?.provider_id === 'pp_razorpay_razorpay')
       if (!razorpaySession) {
         console.error('No Razorpay session found in:', sessions)
         throw new Error('Razorpay session not found')
@@ -125,7 +160,7 @@ export default function CheckoutPage() {
       }
 
       // 6. Open Razorpay modal
-      const totalAmount = refreshedCart.total ?? (refreshedCart.subtotal ?? 0) + 9900
+      const totalAmount = finalCart.total ?? (finalCart.subtotal ?? 0) + 9900
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: totalAmount,
@@ -141,10 +176,9 @@ export default function CheckoutPage() {
         theme: {
           color: '#6B7A4A',
         },
-        handler: async function (response: any) {
+        handler: async function () {
           try {
-            // Use refreshedCart.id for completion
-            const result = await completeCart(refreshedCart.id)
+            const result = await completeCart(finalCart.id)
             if ('error' in result) {
               console.error('Error completing cart:', result.error)
               setError('Payment succeeded but failed to complete order. Please contact support.')
@@ -274,6 +308,7 @@ export default function CheckoutPage() {
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 text-sm">
                     {item.thumbnail && (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.thumbnail} alt={item.title} className="h-16 w-16 rounded-md object-cover" />
                     )}
                     <div className="flex-1">

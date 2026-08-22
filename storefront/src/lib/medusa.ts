@@ -19,7 +19,7 @@ export async function getProducts(params?: Record<string, unknown>) {
       ...params,
     })
     return { products, count, offset, limit }
-  } catch (_e) {
+  } catch {
     return { products: [], count: 0, offset: 0, limit: 0 }
   }
 }
@@ -33,7 +33,7 @@ export async function getProduct(handle: string) {
     })
     if (!products || !products.length) return null
     return products[0] ?? null
-  } catch (_e) {
+  } catch {
     return null
   }
 }
@@ -42,16 +42,18 @@ export async function getCategories() {
   try {
     const { product_categories } = await medusa.store.category.list()
     return product_categories
-  } catch (_e) {
+  } catch {
     return []
   }
 }
 
 export async function getCart(cartId: string) {
   try {
-    const { cart } = await medusa.store.cart.retrieve(cartId)
+    const { cart } = await medusa.store.cart.retrieve(cartId, {
+      fields: 'id,items,subtotal,total,customer.id,customer.email,customer.phone,customer.first_name,customer.last_name,shipping_address,billing_address,payment_sessions,payment_session,email,region',
+    })
     return cart
-  } catch (_e) {
+  } catch {
     return null
   }
 }
@@ -66,7 +68,7 @@ export async function createCart(regionId: string) {
   }
 }
 
-export async function addToCart(cartId: string, variantId: string, quantity: number = 1, metadata?: Record<string, unknown>) {
+export async function addToCart(cartId: string, variantId: string, quantity = 1, metadata?: Record<string, unknown>) {
   try {
     const { cart } = await medusa.store.cart.createLineItem(cartId, {
       variant_id: variantId,
@@ -84,7 +86,7 @@ export async function removeFromCart(cartId: string, lineItemId: string) {
   try {
     await medusa.store.cart.deleteLineItem(cartId, lineItemId)
     return await getCart(cartId)
-  } catch (_e) {
+  } catch {
     return null
   }
 }
@@ -95,12 +97,12 @@ export async function updateCartLineItem(cartId: string, lineItemId: string, qua
       quantity,
     })
     return cart
-  } catch (_e) {
+  } catch {
     return null
   }
 }
 
-export async function updateCart(cartId: string, data: Record<string, any>) {
+export async function updateCart(cartId: string, data: Record<string, unknown>) {
   try {
     const { cart } = await medusa.store.cart.update(cartId, data)
     return cart
@@ -139,9 +141,6 @@ export async function createPaymentSessions(cart: any) {
     const response = await medusa.store.payment.initiatePaymentSession(cart, {
       provider_id: 'pp_razorpay_razorpay',
     })
-    // Log to see the exact structure
-    console.log('createPaymentSessions response:', JSON.stringify(response, null, 2))
-    // Return the whole response – we'll parse it in the page
     return response
   } catch (e) {
     console.error('createPaymentSessions error:', e)
@@ -151,7 +150,6 @@ export async function createPaymentSessions(cart: any) {
 
 export async function completeCart(cartId: string) {
   try {
-    // @ts-ignore
     const response = await medusa.store.cart.complete(cartId)
     return response
   } catch (e) {
