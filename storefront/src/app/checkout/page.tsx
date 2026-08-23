@@ -114,10 +114,22 @@ export default function CheckoutPage() {
       const refreshedCart = await getCart(updatedCart.id)
       if (!refreshedCart) throw new Error('Failed to refresh cart after customer creation')
 
-      // 4. Add shipping method
-      // ─── Skip shipping – client handles courier manually ──────────────────────
-console.log('📦 Bypassing shipping method – manual courier handling')
-// No shipping method is added; the cart will complete without one.
+      // 4. Fetch valid shipping options for cart and attach option
+// 4. Add shipping method dynamically
+try {
+  const options = await getShippingOptions(refreshedCart.id)
+  const validOption = options.find((opt: any) => opt.id === 'so_manual_india') || options[0]
+
+  if (!validOption) {
+    throw new Error('No shipping options available for this cart region')
+  }
+
+  await addShippingMethod(refreshedCart.id, validOption.id)
+  console.log('✅ Shipping method added successfully:', validOption.id)
+} catch (err: any) {
+  console.error('❌ SHIPPING METHOD FAILED, FULL ERROR:', err?.message || err)
+  throw new Error('Could not add shipping method: ' + (err?.message || 'unknown'))
+}
 
       // 5. Final refresh after shipping
       const finalCart = await getCart(refreshedCart.id)
@@ -151,6 +163,7 @@ console.log('📦 Bypassing shipping method – manual courier handling')
       const totalAmount = finalCart.total ?? (finalCart.subtotal ?? 0) + 9900
 
       // 7. Open Razorpay modal
+    
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: totalAmount,
@@ -170,14 +183,16 @@ console.log('📦 Bypassing shipping method – manual courier handling')
             const latestCart = await getCart(finalCart.id)
             if (!latestCart) throw new Error('Could not retrieve cart for completion')
 
-            const result = await completeCart(latestCart.id)
-            if ('error' in result) {
-              console.error('Error completing cart:', result.error)
-              setError('Payment succeeded but failed to complete order. Please contact support.')
+            const result: any = await completeCart(latestCart.id)
+            if (!result || result.error || result.type !== 'order') {
+              console.error('❌ COMPLETE CART ERROR:', result?.error ?? result)
+              const rawDetail = result?.error ?? result
+              const detail = typeof rawDetail === 'object' ? JSON.stringify(rawDetail) : rawDetail
+              setError(`Payment succeeded but order completion failed: ${detail}`)
               setPlacing(false)
             } else {
               localStorage.removeItem(CART_ID_KEY)
-              router.push(`/order-confirmed/${result.order?.id || 'success'}`)
+              router.push(`/order-confirmed/${result.order?.id || result.id || 'success'}`)
             }
           } catch (err: any) {
             console.error('Handler error:', err)
@@ -189,8 +204,9 @@ console.log('📦 Bypassing shipping method – manual courier handling')
 
       const rzp = new (window as any).Razorpay(rzpOptions)
       rzp.on('payment.failed', function (response: any) {
-        console.error('Payment failed', response.error)
-        setError('Payment failed. Please try again.')
+        console.error('Payment failed full response:', JSON.stringify(response, null, 2))
+        const errorMsg = response.error?.description || response.error?.reason || 'Payment failed. Please try again.'
+        setError(`Payment failed: ${errorMsg}`)
         setPlacing(false)
       })
       rzp.open()

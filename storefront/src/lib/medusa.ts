@@ -1,4 +1,5 @@
 import Medusa from '@medusajs/js-sdk'
+import { CART_ID_KEY } from './utils'
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_URL ?? 'http://localhost:9000'
 
@@ -76,7 +77,35 @@ export async function addToCart(cartId: string, variantId: string, quantity = 1,
       metadata,
     })
     return cart
-  } catch (e) {
+  } catch (e: any) {
+    const status = e?.status ?? e?.response?.status
+    if (status === 404) {
+      // Stale/invalid cart id (e.g. cart was deleted or belongs to a wiped dev DB).
+      // Clear it, start a fresh cart, and retry the add once.
+      console.warn('addToCart: cart not found, creating a fresh cart and retrying:', cartId)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(CART_ID_KEY)
+      }
+      const newCart = await createCart(DEFAULT_REGION_ID)
+      if (!newCart) {
+        console.error('addToCart error: failed to create replacement cart after 404')
+        return null
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(CART_ID_KEY, newCart.id)
+      }
+      try {
+        const { cart } = await medusa.store.cart.createLineItem(newCart.id, {
+          variant_id: variantId,
+          quantity,
+          metadata,
+        })
+        return cart
+      } catch (retryErr) {
+        console.error('addToCart error: retry after fresh cart failed:', retryErr)
+        return null
+      }
+    }
     console.error('addToCart error:', e)
     return null
   }
@@ -124,17 +153,11 @@ export async function getShippingOptions(cartId: string) {
 }
 
 export async function addShippingMethod(cartId: string, optionId: string) {
-  try {
-    const { cart } = await medusa.store.cart.addShippingMethod(cartId, {
-      option_id: optionId,
-    })
-    return cart
-  } catch (e) {
-    console.error('addShippingMethod error:', e)
-    return null
-  }
+  const { cart } = await medusa.store.cart.addShippingMethod(cartId, {
+    option_id: optionId,
+  })
+  return cart
 }
-
 // ─── Payment ──────────────────────────────────────────────────────────────────
 export async function createPaymentSessions(cart: any) {
   try {

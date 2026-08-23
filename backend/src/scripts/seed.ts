@@ -51,6 +51,7 @@ const FEATURED_PRODUCTS = [
 
 export default async function seed({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
+  const link = container.resolve(ContainerRegistrationKeys.LINK)
   const productModuleService = container.resolve(Modules.PRODUCT)
   const regionModuleService = container.resolve(Modules.REGION)
   const fulfillmentModuleService = container.resolve(Modules.FULFILLMENT)
@@ -98,6 +99,20 @@ export default async function seed({ container }: ExecArgs) {
     },
   ])
 
+  // ── 4b. Shipping Profile ──────────────────────────────────────────────────
+  // Every product must be linked to a shipping profile, or cart completion
+  // fails with "cart items require shipping profiles that are not satisfied
+  // by the current shipping methods" — reuse an existing default profile if
+  // one is already there (e.g. created via the admin) instead of duplicating it.
+  logger.info('Resolving default shipping profile…')
+  const existingProfiles = await fulfillmentModuleService.listShippingProfiles({ type: 'default' })
+  const shippingProfile =
+    existingProfiles[0] ??
+    (await fulfillmentModuleService.createShippingProfiles([
+      { name: 'Default Shipping Profile', type: 'default' },
+    ]))[0]
+  if (!shippingProfile) throw new Error('Failed to resolve default shipping profile')
+
   // ── 5. Product Categories ─────────────────────────────────────────────────
   logger.info('Creating product categories…')
   const createdCategories = await productModuleService.createProductCategories(
@@ -111,7 +126,7 @@ export default async function seed({ container }: ExecArgs) {
   for (const [handle, products] of Object.entries(PRODUCTS_BY_CATEGORY)) {
     for (const product of products) {
       const slug = product.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-      await productModuleService.createProducts([
+      const [createdProduct] = await productModuleService.createProducts([
         {
           title: product.title,
           handle: slug,
@@ -134,13 +149,18 @@ export default async function seed({ container }: ExecArgs) {
           ],
         },
       ])
+      if (!createdProduct) throw new Error(`Failed to create product: ${product.title}`)
+      await link.create({
+        [Modules.PRODUCT]: { product_id: createdProduct.id },
+        [Modules.FULFILLMENT]: { shipping_profile_id: shippingProfile.id },
+      })
     }
   }
 
   // ── 7. Featured Products ──────────────────────────────────────────────────
   logger.info('Creating featured products…')
   for (const product of FEATURED_PRODUCTS) {
-    await productModuleService.createProducts([
+    const [createdProduct] = await productModuleService.createProducts([
       {
         title: product.title,
         handle: product.handle,
@@ -159,6 +179,11 @@ export default async function seed({ container }: ExecArgs) {
         ],
       },
     ])
+    if (!createdProduct) throw new Error(`Failed to create product: ${product.title}`)
+    await link.create({
+      [Modules.PRODUCT]: { product_id: createdProduct.id },
+      [Modules.FULFILLMENT]: { shipping_profile_id: shippingProfile.id },
+    })
   }
 
   logger.info('✅ Seed complete! Products, region, and sales channel created.')
