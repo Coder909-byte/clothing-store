@@ -1,8 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 const ADMIN_PASSWORD = 'khush@007'
+const AUTH_KEY = 'dtm_admin_authed'
+
+// sessionStorage is a browser-only API, so reading it directly in a state
+// initializer or an effect either breaks SSR (initializer runs during
+// server render too, where sessionStorage doesn't exist) or causes a
+// hydration mismatch (client's first render already differs from what the
+// server sent). useSyncExternalStore is React's built-in fix for exactly
+// this "external, client-only store" case: it renders `false` on the server
+// and during hydration, then syncs to the real value right after.
+const authListeners = new Set<() => void>()
+
+function setAdminAuthed(value: boolean) {
+  if (value) sessionStorage.setItem(AUTH_KEY, 'true')
+  else sessionStorage.removeItem(AUTH_KEY)
+  authListeners.forEach((listener) => listener())
+}
+
+function subscribeAdminAuthed(callback: () => void) {
+  authListeners.add(callback)
+  return () => authListeners.delete(callback)
+}
+
+function getAdminAuthedSnapshot() {
+  return sessionStorage.getItem(AUTH_KEY) === 'true'
+}
+
+function getAdminAuthedServerSnapshot() {
+  return false
+}
 
 interface Order {
   id: string
@@ -34,19 +63,11 @@ interface Order {
 }
 
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false)
+  const authed = useSyncExternalStore(subscribeAdminAuthed, getAdminAuthedSnapshot, getAdminAuthedServerSnapshot)
   const [passwordInput, setPasswordInput] = useState('')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({})
-
-  useEffect(() => {
-    if (sessionStorage.getItem('dtm_admin_authed') === 'true') setAuthed(true)
-  }, [])
-
-  useEffect(() => {
-    if (authed) fetchOrders()
-  }, [authed])
 
   const fetchOrders = async () => {
     setLoading(true)
@@ -65,10 +86,13 @@ export default function AdminPage() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    if (authed) fetchOrders() // eslint-disable-line react-hooks/set-state-in-effect -- intentional: fetch data when auth state changes
+  }, [authed])
+
   const handleLogin = () => {
     if (passwordInput === ADMIN_PASSWORD) {
-      sessionStorage.setItem('dtm_admin_authed', 'true')
-      setAuthed(true)
+      setAdminAuthed(true)
     } else {
       alert('Wrong password')
     }

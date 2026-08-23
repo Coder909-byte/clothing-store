@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ShoppingBag, Heart, Ruler } from 'lucide-react'
 import { createCart, addToCart } from '@/lib/medusa'
-import { formatPrice, getCartId, setCartId } from '@/lib/utils'
+import { getCartId, setCartId } from '@/lib/utils'
 import CustomSizeForm, { type SizeFormData } from './CustomSizeForm'
 
 interface ProductVariant {
@@ -37,8 +37,6 @@ export default function ProductActions({ product, categoryHandle }: Props) {
   const [customFit, setCustomFit] = useState<SizeFormData | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
-
-  const primaryPrice = (product.variants?.[0]?.calculated_price?.calculated_amount || 0)
 
   const heightRanges = [
     { label: "5'0 ft - 5'1 ft / 40 in", value: "5'0-5'1" },
