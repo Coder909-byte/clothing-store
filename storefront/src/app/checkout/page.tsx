@@ -37,6 +37,11 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true)
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState('')
+  // Estimated shipping cost shown before checkout. Read from the shipping
+  // option's `amount` (the actual computed price) — NOT `data.amount`, which
+  // is a stale raw field left over from setup and does not reflect the real,
+  // charged price.
+  const [shippingAmount, setShippingAmount] = useState<number | null>(null)
 
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -56,6 +61,14 @@ export default function CheckoutPage() {
       const c = await getCart(cartId)
       setCart(c as Cart | null)
       setLoading(false)
+
+      if (c) {
+        const options = await getShippingOptions(c.id)
+        const option = options.find((opt: any) => opt.id === 'so_manual_india') || options[0]
+        if (option) {
+          setShippingAmount(option.amount ?? option.calculated_price?.calculated_amount ?? null)
+        }
+      }
     }
     loadCart()
   }, [])
@@ -160,7 +173,7 @@ try {
         throw new Error('Razorpay SDK not loaded')
       }
 
-      const totalAmount = finalCart.total ?? (finalCart.subtotal ?? 0) + 9900
+      const totalAmount = finalCart.total ?? (finalCart.subtotal ?? 0) + (shippingAmount ?? 0)
 
       // 7. Open Razorpay modal
     
@@ -237,7 +250,7 @@ try {
   }
 
   const subtotal = cart.subtotal ?? cart.items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
-  const total = cart.total ?? (subtotal + 9900)
+  const total = cart.total ?? (subtotal + (shippingAmount ?? 0))
 
   return (
     <>
@@ -398,7 +411,7 @@ try {
                 </div>
                 <div className="flex justify-between text-sm text-stone-600">
                   <span>Shipping</span>
-                  <span>{formatPrice(9900)}</span>
+                  <span>{shippingAmount !== null ? formatPrice(shippingAmount) : '—'}</span>
                 </div>
               </div>
 
