@@ -8,9 +8,9 @@ export const medusa = new Medusa({
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 })
 
-// ─── Typed helpers ────────────────────────────────────────────────────────────
 const DEFAULT_REGION_ID = 'reg_01KZ8EA7BQRM4M5NTMN1C9GZX2'
 
+// ─── Products ──────────────────────────────────────────────────────────────────
 export async function getProducts(params?: Record<string, unknown>) {
   try {
     const { products, count, offset, limit } = await medusa.store.product.list({
@@ -31,8 +31,7 @@ export async function getProduct(handle: string) {
       region_id: DEFAULT_REGION_ID,
       fields: 'id,title,handle,thumbnail,*images,variants.title,variants.id,*variants.calculated_price,metadata',
     })
-    if (!products || !products.length) return null
-    return products[0] ?? null
+    return products?.[0] ?? null
   } catch {
     return null
   }
@@ -47,10 +46,11 @@ export async function getCategories() {
   }
 }
 
+// ─── Cart ──────────────────────────────────────────────────────────────────────
 export async function getCart(cartId: string) {
   try {
     const { cart } = await medusa.store.cart.retrieve(cartId, {
-      fields: 'id,items,subtotal,total,customer.id,customer.email,customer.phone,customer.first_name,customer.last_name,shipping_address,billing_address,payment_sessions,payment_session,email,region',
+      fields: 'id,items,subtotal,total,customer.id,customer.email,customer.phone,customer.first_name,customer.last_name,shipping_address,billing_address,payment_sessions,payment_session,payment_collection,email,region,shipping_methods',
     })
     return cart
   } catch {
@@ -93,9 +93,7 @@ export async function removeFromCart(cartId: string, lineItemId: string) {
 
 export async function updateCartLineItem(cartId: string, lineItemId: string, quantity: number) {
   try {
-    const { cart } = await medusa.store.cart.updateLineItem(cartId, lineItemId, {
-      quantity,
-    })
+    const { cart } = await medusa.store.cart.updateLineItem(cartId, lineItemId, { quantity })
     return cart
   } catch {
     return null
@@ -112,6 +110,7 @@ export async function updateCart(cartId: string, data: Record<string, unknown>) 
   }
 }
 
+// ─── Shipping ──────────────────────────────────────────────────────────────────
 export async function getShippingOptions(cartId: string) {
   try {
     const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
@@ -136,6 +135,7 @@ export async function addShippingMethod(cartId: string, optionId: string) {
   }
 }
 
+// ─── Payment ──────────────────────────────────────────────────────────────────
 export async function createPaymentSessions(cart: any) {
   try {
     const response = await medusa.store.payment.initiatePaymentSession(cart, {
@@ -148,6 +148,7 @@ export async function createPaymentSessions(cart: any) {
   }
 }
 
+// ─── Order ────────────────────────────────────────────────────────────────────
 export async function completeCart(cartId: string) {
   try {
     const response = await medusa.store.cart.complete(cartId)
@@ -155,24 +156,5 @@ export async function completeCart(cartId: string) {
   } catch (e) {
     console.error('completeCart error:', e)
     return { error: e }
-  }
-}
-
-// ─── updateCustomerPhone (via direct DB API route, bypasses auth entirely) ──
-export async function updateCustomerPhone(cartId: string, phone: string) {
-  try {
-    const res = await fetch('/api/set-phone', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart_id: cartId, phone }),
-    })
-    if (!res.ok) {
-      console.warn('set-phone failed:', await res.text())
-      return null
-    }
-    return await res.json()
-  } catch (e) {
-    console.error('updateCustomerPhone error:', e)
-    return null
   }
 }

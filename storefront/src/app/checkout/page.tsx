@@ -4,10 +4,15 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Script from 'next/script'
 import { useRouter } from 'next/navigation'
-import { getCart, updateCart, getShippingOptions, addShippingMethod, createPaymentSessions, completeCart } from '@/lib/medusa'
+import {
+  getCart,
+  updateCart,
+  getShippingOptions,
+  addShippingMethod,
+  createPaymentSessions,
+  completeCart,
+} from '@/lib/medusa'
 import { formatPrice, CART_ID_KEY } from '@/lib/utils'
-// Import the database pool for direct customer creation
-import { pool } from '@/lib/db'
 
 interface LineItem {
   id: string
@@ -22,8 +27,8 @@ interface Cart {
   items?: LineItem[]
   subtotal?: number
   total?: number
-  payment_sessions?: unknown[]
-  payment_session?: unknown
+  payment_sessions?: any[]
+  payment_session?: any
 }
 
 export default function CheckoutPage() {
@@ -33,7 +38,6 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState('')
 
-  // Form state
   const [email, setEmail] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -64,8 +68,7 @@ export default function CheckoutPage() {
     setError('')
 
     try {
-      // 1. Update cart with shipping AND billing address
-      console.log('DEBUG phone value:', phone, 'email:', email)
+      // 1. Update cart with shipping and billing addresses
       const updatedCart = await updateCart(cart.id, {
         email,
         shipping_address: {
@@ -90,77 +93,64 @@ export default function CheckoutPage() {
 
       if (!updatedCart) throw new Error('Failed to update cart address')
 
-      // 2. Ensure a customer record exists and is linked to the cart
-      //    This is required by the Razorpay plugin (it checks customer.phone)
-     const customerRes = await fetch('/api/set-customer', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email,
-    firstName,
-    lastName,
-    phone,
-    cartId: updatedCart.id,
-  }),
-})
+      // 2. Create/update customer and link to cart (via API route)
+      const customerRes = await fetch('/api/set-customer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          firstName,
+          lastName,
+          phone,
+          cartId: updatedCart.id,
+        }),
+      })
+      if (!customerRes.ok) {
+        const err = await customerRes.json()
+        throw new Error(err.error || 'Failed to set customer')
+      }
 
-if (!customerRes.ok) {
-  const errorData = await customerRes.json()
-  throw new Error(errorData.error || 'Failed to set customer')
-}
-
-// Optionally parse response if needed
-await customerRes.json()
-       
-
-      // Re-fetch the cart to get the updated customer_id and other changes
+      // 3. Refresh cart after customer link
       const refreshedCart = await getCart(updatedCart.id)
       if (!refreshedCart) throw new Error('Failed to refresh cart after customer creation')
 
-      // 3. Add shipping method
-      const options = await getShippingOptions(refreshedCart.id)
-      if (!options || options.length === 0) {
-        throw new Error('No shipping options available. Please contact support.')
-      }
+      // 4. Add shipping method
+      // ─── Skip shipping – client handles courier manually ──────────────────────
+console.log('📦 Bypassing shipping method – manual courier handling')
+// No shipping method is added; the cart will complete without one.
 
-      await addShippingMethod(refreshedCart.id, options[0].id)
-
-      // 4. Re-fetch cart after shipping method
+      // 5. Final refresh after shipping
       const finalCart = await getCart(refreshedCart.id)
       if (!finalCart) throw new Error('Failed to refresh cart after shipping method')
 
-      // 5. Create payment session using the final cart
+      // 6. Create payment session
       const paymentResponse = await createPaymentSessions(finalCart)
       if (!paymentResponse) throw new Error('Failed to create payment session')
 
-      // Extract payment collection and sessions
       const paymentCollection = paymentResponse.payment_collection || paymentResponse
       const sessions = paymentCollection?.payment_sessions || []
-
-      // Find the Razorpay session
-      // sessions can be untyped; use any to avoid TS errors when accessing provider_id
-      const razorpaySession = sessions.find((s: any) => (s as any)?.provider_id === 'pp_razorpay_razorpay')
+      const razorpaySession = sessions.find(
+        (s: any) => s?.provider_id === 'pp_razorpay_razorpay'
+      )
       if (!razorpaySession) {
         console.error('No Razorpay session found in:', sessions)
         throw new Error('Razorpay session not found')
       }
 
-      // Order ID is inside session.data
       const sessionData = razorpaySession.data
       if (!sessionData?.id) {
         console.error('No order ID in session data:', sessionData)
         throw new Error('Razorpay order ID missing')
       }
-
       const orderId = sessionData.id
 
-      // Ensure Razorpay script is loaded
       if (!(window as any).Razorpay) {
         throw new Error('Razorpay SDK not loaded')
       }
 
-      // 6. Open Razorpay modal
       const totalAmount = finalCart.total ?? (finalCart.subtotal ?? 0) + 9900
+
+      // 7. Open Razorpay modal
       const rzpOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: totalAmount,
@@ -173,12 +163,14 @@ await customerRes.json()
           email,
           contact: phone,
         },
-        theme: {
-          color: '#6B7A4A',
-        },
+        theme: { color: '#6B7A4A' },
         handler: async function () {
           try {
-            const result = await completeCart(finalCart.id)
+            // Get the absolute latest cart state before completion
+            const latestCart = await getCart(finalCart.id)
+            if (!latestCart) throw new Error('Could not retrieve cart for completion')
+
+            const result = await completeCart(latestCart.id)
             if ('error' in result) {
               console.error('Error completing cart:', result.error)
               setError('Payment succeeded but failed to complete order. Please contact support.')
@@ -202,7 +194,6 @@ await customerRes.json()
         setPlacing(false)
       })
       rzp.open()
-
     } catch (err: any) {
       console.error('Checkout error:', err)
       setError(err.message || 'Something went wrong during checkout.')
@@ -239,53 +230,113 @@ await customerRes.json()
         <h1 className="font-display mb-8 text-4xl font-semibold text-olive-dark">Checkout</h1>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Form Section */}
           <form onSubmit={handlePlaceOrder} className="space-y-6">
             <div className="rounded-xl border border-olive/10 bg-ivory-cool p-6">
               <h2 className="mb-6 font-display text-2xl font-semibold text-olive-dark">Contact & Shipping</h2>
-              
+
               {error && (
-                <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-600">
-                  {error}
-                </div>
+                <div className="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-600">{error}</div>
               )}
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-stone-700">Email Address</label>
-                  <input type="email" id="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-stone-700">First Name</label>
-                    <input type="text" id="firstName" required value={firstName} onChange={(e) => setFirstName(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
-                  </div>
-                  <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-stone-700">Last Name</label>
-                    <input type="text" id="lastName" required value={lastName} onChange={(e) => setLastName(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-stone-700">Street Address</label>
-                  <input type="text" id="address" required value={address} onChange={(e) => setAddress(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
+                  <label htmlFor="email" className="block text-sm font-medium text-stone-700">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-stone-700">City</label>
-                    <input type="text" id="city" required value={city} onChange={(e) => setCity(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
+                    <label htmlFor="firstName" className="block text-sm font-medium text-stone-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                    />
                   </div>
                   <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-stone-700">Postal Code</label>
-                    <input type="text" id="postalCode" required value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
+                    <label htmlFor="lastName" className="block text-sm font-medium text-stone-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-stone-700">Phone</label>
-                  <input type="tel" id="phone" required value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive" />
+                  <label htmlFor="address" className="block text-sm font-medium text-stone-700">
+                    Street Address
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    required
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-stone-700">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      required
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="postalCode" className="block text-sm font-medium text-stone-700">
+                      Postal Code
+                    </label>
+                    <input
+                      type="text"
+                      id="postalCode"
+                      required
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-stone-700">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1 block w-full rounded-md border border-olive/20 px-3 py-2 outline-none focus:border-olive focus:ring-1 focus:ring-olive"
+                  />
                 </div>
               </div>
             </div>
@@ -299,7 +350,6 @@ await customerRes.json()
             </button>
           </form>
 
-          {/* Order Summary Section */}
           <div>
             <div className="sticky top-24 rounded-xl border border-olive/10 bg-ivory p-6">
               <h2 className="mb-4 font-display text-xl font-semibold text-olive-dark">Order Summary</h2>
@@ -308,14 +358,19 @@ await customerRes.json()
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 text-sm">
                     {item.thumbnail && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.thumbnail} alt={item.title} className="h-16 w-16 rounded-md object-cover" />
+                      <img
+                        src={item.thumbnail}
+                        alt={item.title}
+                        className="h-16 w-16 rounded-md object-cover"
+                      />
                     )}
                     <div className="flex-1">
                       <h3 className="font-medium text-stone-800">{item.title}</h3>
                       <p className="text-stone-500">Qty: {item.quantity}</p>
                     </div>
-                    <span className="font-medium text-stone-800">{formatPrice(item.unit_price * item.quantity)}</span>
+                    <span className="font-medium text-stone-800">
+                      {formatPrice(item.unit_price * item.quantity)}
+                    </span>
                   </div>
                 ))}
               </div>
