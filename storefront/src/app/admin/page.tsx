@@ -13,8 +13,24 @@ interface Order {
   created_at: string
   total: number
   currency_code: string
-  shipping_address: { name: string; address_1: string; city: string; postal_code: string; phone: string }
-  items: { title: string; quantity: number; unit_price: number }[]
+  customer: { name: string; phone: string }
+  shipping_address: {
+    name: string
+    address_1: string
+    address_2: string | null
+    city: string
+    province: string | null
+    postal_code: string
+    phone: string
+    country_code: string
+  }
+  items: {
+    title: string
+    quantity: number
+    unit_price: number
+    variant_title: string | null
+    metadata: Record<string, unknown> | null
+  }[]
 }
 
 export default function AdminPage() {
@@ -104,16 +120,37 @@ export default function AdminPage() {
               <span>{new Date(o.created_at).toLocaleString()}</span>
             </div>
             <p className="text-sm">Email: {o.email}</p>
+            <p className="text-sm">Phone: {o.customer.phone}</p>
             <p className="text-sm">
-              Ship to: {o.shipping_address.name}, {o.shipping_address.address_1}, {o.shipping_address.city} —{' '}
-              {o.shipping_address.postal_code} | Phone: {o.shipping_address.phone}
+              Ship to: {o.shipping_address.name}, {o.shipping_address.address_1}
+              {o.shipping_address.address_2 ? `, ${o.shipping_address.address_2}` : ''}, {o.shipping_address.city}
+              {o.shipping_address.province ? `, ${o.shipping_address.province}` : ''} —{' '}
+              {o.shipping_address.postal_code}, {o.shipping_address.country_code?.toUpperCase()} | Phone:{' '}
+              {o.shipping_address.phone}
             </p>
-            <ul className="my-2 text-sm text-stone-600">
-              {o.items.map((item, i) => (
-                <li key={i}>
-                  {item.title} × {item.quantity} — ₹{item.unit_price}
-                </li>
-              ))}
+            <ul className="my-2 space-y-1 text-sm text-stone-600">
+              {o.items.map((item, i) => {
+                const fitEntries = Object.entries(item.metadata || {}).filter(
+                  ([, v]) => v !== undefined && v !== null && v !== ''
+                )
+                return (
+                  <li key={i}>
+                    <div>
+                      {item.title}
+                      {item.variant_title ? ` (${item.variant_title})` : ''} × {item.quantity} — ₹{item.unit_price}
+                    </div>
+                    {fitEntries.length > 0 && (
+                      <div className="ml-3 text-xs text-stone-500">
+                        {fitEntries.map(([k, v]) => (
+                          <div key={k}>
+                            {k.replace(/_/g, ' ')}: {String(v)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
             <p className="mb-3 text-sm font-semibold">Total: ₹{o.total.toLocaleString('en-IN')}</p>
             <div className="flex items-center gap-3">
