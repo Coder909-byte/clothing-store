@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ShoppingBag, Heart, Ruler } from 'lucide-react'
 import { createCart, addToCart } from '@/lib/medusa'
 import { formatPrice, getCartId, setCartId } from '@/lib/utils'
-import CustomSizeForm from './CustomSizeForm'
+import CustomSizeForm, { type SizeFormData } from './CustomSizeForm'
 
 interface ProductVariant {
   id: string
@@ -34,6 +34,7 @@ export default function ProductActions({ product, categoryHandle }: Props) {
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [selectedBralette, setSelectedBralette] = useState<string>('')
   const [selectedHeight, setSelectedHeight] = useState<string>('')
+  const [customFit, setCustomFit] = useState<SizeFormData | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
@@ -72,6 +73,16 @@ export default function ProductActions({ product, categoryHandle }: Props) {
       }
       if (selectedBralette) {
         metadata.bralette_option = selectedBralette
+      }
+      if (customFit) {
+        // Flat keys (rather than a nested object) so the generic "list every
+        // metadata entry" rendering in the admin page and order email works
+        // without special-casing this field.
+        metadata.custom_height_cm = customFit.heightCm
+        if (customFit.bustCm !== undefined) metadata.custom_bust_cm = customFit.bustCm
+        if (customFit.waistCm !== undefined) metadata.custom_waist_cm = customFit.waistCm
+        if (customFit.hipCm !== undefined) metadata.custom_hip_cm = customFit.hipCm
+        if (customFit.notes) metadata.custom_fit_notes = customFit.notes
       }
 
       const updatedCart = await addToCart(cartId, selectedSize, 1, metadata)
@@ -201,7 +212,7 @@ export default function ProductActions({ product, categoryHandle }: Props) {
             <p className="text-xs text-stone-500">Get a garment tailored to your exact measurements</p>
           </div>
         </div>
-        <CustomSizeForm productId={product.id} productTitle={product.title} />
+        <CustomSizeForm productId={product.id} productTitle={product.title} onChange={setCustomFit} />
       </div>
 
       {/* Product details */}

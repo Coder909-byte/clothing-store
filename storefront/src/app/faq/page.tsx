@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: 'What is your return policy?',
-    a: 'We accept returns within 30 days of delivery. Items must be in their original condition — unworn, unwashed, and in original packaging. Sale items are final sale.',
+    a: "No returns or exchanges are accepted, except for damaged items. Please record the entire unboxing video and email it to us with your concern within 24 hours. An unboxing video is mandatory for any damage-related claim.",
   },
   {
     q: 'How do I know which size to choose?',

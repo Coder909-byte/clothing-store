@@ -99,17 +99,9 @@ We reserve the right to update these terms at any time. Continued use of the web
 - **Express Delivery**: 2–3 business days — ₹199.
 - We ship across India via trusted courier partners.
 
-## Returns
+## Returns & Exchanges
 
-We accept returns within **30 days** of delivery. Items must be unworn, unwashed, and in original packaging.
-
-To initiate a return, email **returns@donttellmama.in** with your order number and reason.
-
-Refunds are processed within 5–7 business days of receiving the returned item.
-
-## Exchanges
-
-We offer free size exchanges on clothing. Contact us at the address above and we'll arrange a pickup.
+No returns or exchanges are accepted, except for damaged items. Please record the entire unboxing video and email it to us with your concern within 24 hours. An unboxing video is mandatory for any damage-related claim.
     `.trim(),
   },
 }

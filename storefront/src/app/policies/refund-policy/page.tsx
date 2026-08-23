@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Refund Policy',
-  description: "Don't Tell Mama refund policy — easy returns within 30 days.",
+  description: "Don't Tell Mama refund policy — no returns or exchanges except for damaged items.",
 }
 
 // TODO: Legal text needs final client/lawyer review before launch.
 const REFUND_POLICY = `
 **Last updated: January 2025**
 
-No exchanges or returns are accepted on any order. Since each piece is made to order, we're unable to offer exchanges or refunds once an order is placed. Please review your size, measurements, and customization details carefully before completing your purchase.
+No returns or exchanges are accepted, except for damaged items. Please record the entire unboxing video and email it to us with your concern within 24 hours. An unboxing video is mandatory for any damage-related claim.
 
 ## Damages and Issues
 
