@@ -10,8 +10,8 @@ export default defineConfig({
     },
     http: {
       storeCors: process.env.STORE_CORS ?? 'http://localhost:3000',
-  adminCors: process.env.ADMIN_CORS ?? 'http://localhost:3000',
-  authCors: process.env.AUTH_CORS ?? 'http://localhost:3000',
+      adminCors: process.env.ADMIN_CORS ?? 'http://localhost:3000',
+      authCors: process.env.AUTH_CORS ?? 'http://localhost:3000',
       jwtSecret: process.env.JWT_SECRET ?? 'supersecret',
       cookieSecret: process.env.COOKIE_SECRET ?? 'supersecret',
     },
@@ -21,22 +21,17 @@ export default defineConfig({
     disable: false,
   },
   modules: [
-    // ── Core modules (all default Medusa v2 modules) ──────────────────────
     {
-      resolve: '@medusajs/medusa/product',
-      key: Modules.PRODUCT,
-    },
-    {
-      resolve: '@medusajs/medusa/cart',
-      key: Modules.CART,
-    },
-    {
-      resolve: '@medusajs/medusa/order',
-      key: Modules.ORDER,
-    },
-    {
-      resolve: '@medusajs/medusa/customer',
-      key: Modules.CUSTOMER,
+      resolve: '@medusajs/medusa/fulfillment',
+      key: Modules.FULFILLMENT,
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/fulfillment-manual',
+            id: 'manual',
+          },
+        ],
+      },
     },
     {
       resolve: '@medusajs/medusa/payment',
@@ -55,14 +50,6 @@ export default defineConfig({
       },
     },
     {
-      resolve: '@medusajs/medusa/inventory',
-      key: Modules.INVENTORY,
-    },
-    {
-      resolve: '@medusajs/medusa/stock-location',
-      key: Modules.STOCK_LOCATION,
-    },
-    {
       resolve: '@medusajs/medusa/auth',
       key: Modules.AUTH,
       options: {
@@ -73,30 +60,6 @@ export default defineConfig({
           },
         ],
       },
-    },
-    {
-      resolve: '@medusajs/medusa/region',
-      key: Modules.REGION,
-    },
-    {
-      resolve: '@medusajs/medusa/sales-channel',
-      key: Modules.SALES_CHANNEL,
-    },
-    {
-      resolve: '@medusajs/medusa/currency',
-      key: Modules.CURRENCY,
-    },
-    {
-      resolve: '@medusajs/medusa/tax',
-      key: Modules.TAX,
-    },
-    {
-      resolve: '@medusajs/medusa/fulfillment',
-      key: Modules.FULFILLMENT,
-    },
-    {
-      resolve: '@medusajs/medusa/pricing',
-      key: Modules.PRICING,
     },
   ],
 })
