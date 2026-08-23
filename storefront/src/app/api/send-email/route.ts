@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         </div>
 
         <p style="margin-top: 30px; color: #666; font-size: 14px;">
-          If you have any questions, please contact us at support@donttellmama.com
+          If you have any questions, please contact us at support.donttellmama@gmail.com
         </p>
       </body>
       </html>

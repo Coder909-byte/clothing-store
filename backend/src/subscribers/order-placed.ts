@@ -58,10 +58,6 @@ export default async function orderPlacedHandler({
     }
 
     const email = order.email || order.customer?.email
-    if (!email) {
-      console.warn(`[order-placed] No email found for order ${data.id}`)
-      return
-    }
 
     const customerName =
       [order.customer?.first_name, order.customer?.last_name].filter(Boolean).join(" ").trim() || "there"
@@ -106,24 +102,37 @@ export default async function orderPlacedHandler({
     const total = order.summary?.current_order_total ?? 0
 
     const resend = new Resend(resendApiKey)
-    const { data: resendData, error } = await resend.emails.send({
-      // Sandbox sender — works without a verified domain. Switch to a verified
-      // "Don't Tell Mama <orders@donttellmama.com>" once that domain is
-      // verified in the Resend dashboard.
-      from: "Don't Tell Mama <onboarding@resend.dev>",
-      to: [email],
-      subject: `Order Confirmation - #${order.display_id || order.id}`,
+
+    // Sandbox sender — works without a verified domain, but can only deliver
+    // to the Resend account's own signup address until a domain is verified.
+    // Switch to a verified "Don't Tell Mama <orders@donttellmama.com>" once
+    // that domain is verified in the Resend dashboard.
+    const fromAddress = "Don't Tell Mama <onboarding@resend.dev>"
+
+    // Internal notification to the store owner — no customer-facing
+    // confirmation email is sent (it always fails without a verified
+    // Resend domain). This is the only email order.placed triggers.
+    const ownerEmail = process.env.OWNER_NOTIFICATION_EMAIL
+    if (!ownerEmail) {
+      console.warn("[order-placed] No OWNER_NOTIFICATION_EMAIL found, skipping email.")
+      return
+    }
+
+    const { data: ownerResendData, error: ownerError } = await resend.emails.send({
+      from: fromAddress,
+      to: [ownerEmail],
+      subject: `🔔 New order received - #${order.display_id || order.id}`,
       html: `
         <div style="font-family: sans-serif; color: #333; max-width: 600px;">
-          <h2>Thank you for your order, ${customerName}!</h2>
-          <p>We've received your order <strong>#${order.display_id || order.id}</strong>.</p>
+          <h2>New order received — #${order.display_id || order.id}</h2>
+          <p>A new order just came in. Check <strong>/admin</strong> and start fulfillment.</p>
 
-          <h3 style="margin-bottom:4px;">Shipping to</h3>
+          <h3 style="margin-bottom:4px;">Customer</h3>
           <p style="margin-top:0;">
             ${customerName}<br/>
             ${addressLines.join("<br/>")}<br/>
             Phone: ${phone}<br/>
-            Email: ${email}
+            Email: ${email || "—"}
           </p>
 
           <h3 style="margin-bottom:4px;">Items</h3>
@@ -143,19 +152,14 @@ export default async function orderPlacedHandler({
           <p style="text-align:right;font-size:16px;margin-top:12px;">
             <strong>Total: ${formatINR(total)}</strong>
           </p>
-
-          <p>We will notify you once it ships.</p>
-          <br />
-          <p>Best regards,</p>
-          <p>Don't Tell Mama Team</p>
         </div>
       `,
     })
 
-    if (error) {
-      console.error("[order-placed] Resend API error:", error)
+    if (ownerError) {
+      console.error("[order-placed] Owner notification error:", ownerError)
     } else {
-      console.log("[order-placed] Order confirmation sent:", resendData?.id)
+      console.log("[order-placed] Owner notification sent:", ownerResendData?.id)
     }
   } catch (err) {
     console.error("[order-placed] Error sending email:", err)

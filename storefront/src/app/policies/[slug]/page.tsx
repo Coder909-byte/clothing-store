@@ -47,7 +47,7 @@ You have the right to access, correct, or request deletion of your personal data
 
 ## Contact Us
 
-For questions or concerns about this Privacy Policy, please reach out to us at **privacy@dontsellmama.com**.
+For questions or concerns about this Privacy Policy, please reach out to us at **support.donttellmama@gmail.com**.
     `.trim(),
   },
   'terms-of-service': {
@@ -81,7 +81,7 @@ Don't Tell Mama shall not be liable for any indirect, incidental, or consequenti
 
 ## Governing Law
 
-These Terms of Service are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Mumbai, Maharashtra.
+These Terms of Service are governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts in Panipat, Haryana.
 
 ## Changes to Terms
 

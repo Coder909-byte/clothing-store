@@ -6,6 +6,9 @@ import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 // Placeholder image helper — uses placehold.co with our brand colors
 // ─────────────────────────────────────────────────────────────────────────────
 const placeholder = (w: number, h: number, label: string) =>
+
+
+  
   `https://placehold.co/${w}x${h}/6B7A4A/F5F0E8?text=${encodeURIComponent(label)}`
 
 // ─────────────────────────────────────────────────────────────────────────────

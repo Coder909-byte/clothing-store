@@ -21,7 +21,7 @@ Sale or discounted items are not eligible for return under any circumstance.
 
 ## Contact Us
 
-For any questions or concerns, please reach out to us at **support@donttellmama.com**.
+For any questions or concerns, please reach out to us at **support.donttellmama@gmail.com**.
 `.trim()
 
 export default function RefundPolicyPage() {

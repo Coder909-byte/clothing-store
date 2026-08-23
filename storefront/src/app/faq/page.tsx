@@ -24,14 +24,6 @@ const FAQS = [
     a: 'We work with natural fibres — primarily linen, cotton, wool, and silk — sourced from responsible suppliers. Each product listing details the exact materials.',
   },
   {
-    q: 'Can I modify or cancel my order?',
-    a: 'Orders can be modified or cancelled within 2 hours of placing them. After that, our fulfilment process begins. Please email orders@donttellmama.in as soon as possible.',
-  },
-  {
-    q: 'Do you offer gift wrapping?',
-    a: 'Yes! Select gift wrapping at checkout. We use recycled kraft paper and tie with a cotton ribbon — no extra plastic.',
-  },
-  {
     q: 'How do I care for my garments?',
     a: 'Care instructions are printed inside each garment and listed on every product page. As a general rule: cold wash, gentle cycle, lay flat to dry.',
   },
