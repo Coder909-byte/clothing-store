@@ -11,5 +11,7 @@ export default async function emitOrderPlaced({ container, args }: ExecArgs) {
   }
   logger.info(`Emitting order.placed for ${orderId}…`)
   await eventBus.emit({ name: "order.placed", data: { id: orderId } })
-  logger.info("Emit call returned.")
+  logger.info("Emit call returned, waiting for async subscribers to finish…")
+  await new Promise((r) => setTimeout(r, 6000))
+  logger.info("Done waiting.")
 }
