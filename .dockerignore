@@ -1,0 +1,30 @@
+# Applies to the root build context used by /Dockerfile.
+# Note: Docker can't "un-ignore" a file inside an ignored directory, so this
+# deliberately does NOT blanket-exclude storefront/ (the Dockerfile needs
+# storefront/package.json for pnpm's workspace resolution) — instead it
+# excludes storefront's own build junk individually.
+
+# never send secrets into a build context/layer
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# VCS / editor / OS cruft
+.git
+.gitignore
+.DS_Store
+*.swp
+
+# dependency + build artifacts (reinstalled/rebuilt inside the image)
+node_modules
+**/node_modules
+backend/dist
+backend/.medusa
+storefront/.next
+
+# docs / local-only files (kept: the Cloud Run deploy runbook)
+*.md
+!backend/CLOUD_RUN_DEPLOY.md

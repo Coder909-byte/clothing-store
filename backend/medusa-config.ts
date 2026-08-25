@@ -2,11 +2,21 @@ import { loadEnv, defineConfig, Modules } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+// Local Postgres.app has no SSL configured; every hosted Postgres we connect
+// to (Render's internal *or* external endpoint, and definitely any external
+// connection from a different cloud like Cloud Run) requires it. Detect by
+// the URL itself rather than NODE_ENV so this is correct regardless of which
+// platform/network the request is coming from.
+const databaseUrl = process.env.DATABASE_URL ?? ''
+const isLocalDatabase = /localhost|127\.0\.0\.1/.test(databaseUrl)
+
 export default defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     databaseDriverOptions: {
-      connection: { ssl: false },
+      connection: {
+        ssl: isLocalDatabase ? false : { rejectUnauthorized: false },
+      },
     },
     http: {
       storeCors: process.env.STORE_CORS ?? 'http://localhost:3000',
