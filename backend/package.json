@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "medusa develop",
     "build": "medusa build",
-    "start": "medusa start",
+    "start": "NODE_OPTIONS='--max-old-space-size=400' medusa start",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit"
